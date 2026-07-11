@@ -19,7 +19,19 @@ const limitOneDreamPer3h = async (req, res, next) => {
   } catch { next(); }
 };
 
-router.post('/', authenticate, limitOneDreamPer3h, [
+const requireVerifiedForSecondDream = async (req, res, next) => {
+  try {
+    if (!req.user.emailVerified) {
+      const dreamCount = await Dream.countDocuments({ user: req.user._id });
+      if (dreamCount >= 1) {
+        return res.status(403).json({ error: 'VERIFICATION_REQUIRED', message: 'Verifica tu cuenta para enviar más sueños.' });
+      }
+    }
+    next();
+  } catch { next(); }
+};
+
+router.post('/', authenticate, limitOneDreamPer3h, requireVerifiedForSecondDream, [
   body('title').trim().notEmpty().withMessage('El título es requerido'),
   body('text').trim().notEmpty().withMessage('La descripción del sueño es requerida')
     .isLength({ min: 10 }).withMessage('Describe tu sueño con al menos 10 caracteres')

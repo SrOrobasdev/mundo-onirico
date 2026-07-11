@@ -43,6 +43,14 @@ const userSchema = new mongoose.Schema({
   lockUntil: {
     type: Date,
     default: null
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationCode: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true
@@ -63,7 +71,14 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 userSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.verificationCode;
   return obj;
+};
+
+userSchema.methods.generateVerificationCode = function() {
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  this.verificationCode = code;
+  return code;
 };
 
 module.exports = mongoose.model('User', userSchema);

@@ -5,13 +5,13 @@ const { body, validationResult } = require('express-validator');
 const passport = require('passport');
 const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
-const { sendWelcomeEmail } = require('../services/email');
+const { sendWelcomeEmail, sendVerificationCode } = require('../services/email');
 
 const router = express.Router();
 
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user._id, email: user.email, role: user.role },
+    { id: user._id, email: user.email, role: user.role, emailVerified: user.emailVerified || false },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
@@ -38,12 +38,15 @@ router.post('/register', [
     const user = new User({ name, email, password });
     await user.save();
 
-    const token = generateToken(user);
-
+    const code = user.generateVerificationCode();
+    await user.save();
+    sendVerificationCode(user, code);
     sendWelcomeEmail(user);
 
+    const token = generateToken(user);
+
     res.status(201).json({
-      message: 'Cuenta creada con éxito',
+      message: 'Cuenta creada con éxito. Revisa tu email para verificar.',
       token,
       user: user.toJSON()
     });
@@ -106,6 +109,51 @@ router.post('/login', [
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
+});
+
+router.post('/verify', authenticate, [
+  body('code').trim().notEmpty().withMessage('Código requerido')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    if (req.user.emailVerified) {
+      return res.json({ message: 'Cuenta ya verificada.', user: req.user.toJSON() });
+    }
+
+    if (req.body.code !== req.user.verificationCode) {
+      return res.status(400).json({ error: 'Código incorrecto.' });
+    }
+
+    req.user.emailVerified = true;
+    req.user.verificationCode = null;
+    await req.user.save();
+
+    res.json({ message: 'Cuenta verificada con éxito.', user: req.user.toJSON() });
+  } catch (error) {
+    console.error('Verify error:', error);
+    res.status(500).json({ error: 'Error al verificar cuenta' });
+  }
+});
+
+router.post('/resend-code', authenticate, async (req, res) => {
+  try {
+    if (req.user.emailVerified) {
+      return res.json({ message: 'Cuenta ya verificada.' });
+    }
+
+    const code = req.user.generateVerificationCode();
+    await req.user.save();
+    sendVerificationCode(req.user, code);
+
+    res.json({ message: 'Código reenviado a tu email.' });
+  } catch (error) {
+    console.error('Resend error:', error);
+    res.status(500).json({ error: 'Error al reenviar código' });
   }
 });
 

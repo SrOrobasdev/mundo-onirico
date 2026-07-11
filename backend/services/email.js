@@ -81,4 +81,32 @@ const sendInterpretationNotification = async (user, dream) => {
   }
 };
 
-module.exports = { transporter, sendWelcomeEmail, sendInterpretationNotification };
+const sendVerificationCode = async (user, code) => {
+  try {
+    await transporter.sendMail({
+      from: `"Mundo Onírico" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: '🔐 Código de verificación — Mundo Onírico',
+      html: `
+        <div style="font-family: 'Georgia', serif; background: #07060f; color: #f1f5f9; padding: 40px 20px;">
+          <div style="max-width: 600px; margin: 0 auto; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 40px; text-align: center;">
+            <h1 style="color: #e0a96d; font-size: 24px;">🌙 Mundo Onírico</h1>
+            <p style="color: #a78bfa; font-size: 12px; text-transform: uppercase; letter-spacing: 3px;">Verificación de cuenta</p>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: 24px 0;">
+            <p style="color: #cbd5e1; font-size: 14px;">Hola, ${esc(user.name)} ✦</p>
+            <p style="color: #94a3b8; font-size: 13px;">Tu código de verificación es:</p>
+            <div style="background: rgba(224,169,109,0.1); border: 1px solid rgba(224,169,109,0.2); border-radius: 12px; padding: 20px; margin: 20px auto; max-width: 200px;">
+              <span style="font-size: 36px; letter-spacing: 8px; font-weight: bold; color: #e0a96d;">${code}</span>
+            </div>
+            <p style="color: #64748b; font-size: 11px;">Este código expira después de verificar tu cuenta.</p>
+          </div>
+        </div>
+      `
+    });
+    console.log('✅ Código de verificación enviado a', user.email);
+  } catch (error) {
+    console.error('Error enviando código de verificación:', error.message);
+  }
+};
+
+module.exports = { transporter, sendWelcomeEmail, sendInterpretationNotification, sendVerificationCode };

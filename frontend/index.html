@@ -166,6 +166,11 @@
                     <span data-i18n="welcome_panel">Panel de</span> <span id="user-welcome-username" class="text-white font-bold">Diana</span>
                 </p>
                 <p class="text-[11px] text-purple-200/60 max-w-md mx-auto leading-relaxed font-light" data-i18n="welcome_desc">Gestiona tu bitácora de sueños y consulta tus interpretaciones en tu panel seguro de control de visiones.</p>
+                <div id="verify-banner" class="hidden p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 max-w-sm mx-auto">
+                    <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">✦ <span data-i18n="verify_notice_title">Aviso</span></p>
+                    <p class="text-[10px] text-amber-300/80 mt-1" data-i18n="verify_notice">Solo se podrá enviar un sueño si no verificas la cuenta.</p>
+                    <button onclick="showVerificationView()" class="mt-2 text-[9px] text-amber-300 hover:text-amber-200 underline font-bold uppercase tracking-widest" data-i18n="verify_btn_go">Verificar Cuenta</button>
+                </div>
             </div>
 
             <div id="quick-links-container" class="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -475,6 +480,7 @@
                 footer_disclaimer:"Cada interpretación es privada, confidencial y enfocada en tu autoconocimiento reflexivo.",
                 footer_terms:"Términos y Condiciones",footer_privacy:"Aviso de Privacidad",
                 terms_link:"✦ Términos y Condiciones — Contrato Legal ✦",
+                verify_title:"Verifica tu Cuenta",verify_desc:"Ingresa el código de 6 dígitos que enviamos a tu correo para seguir enviando sueños.",verify_continue:"Continuar",verify_btn:"Verificar Cuenta",verify_notice_title:"Aviso",verify_notice:"Solo se podrá enviar un sueño si no verificas la cuenta.",verify_btn_go:"Verificar Cuenta",verify_resend:"Reenviar Código",
                 exit_btn:"Salir"
             },
             en: {
@@ -512,6 +518,7 @@
                 footer_disclaimer:"Each interpretation is private, confidential, and focused on reflective self-knowledge.",
                 footer_terms:"Terms & Conditions",footer_privacy:"Privacy Policy",
                 terms_link:"✦ Terms & Conditions — Legal Contract ✦",
+                verify_title:"Verify your Account",verify_desc:"Enter the 6-digit code sent to your email to keep sending dreams.",verify_continue:"Continue",verify_btn:"Verify Account",verify_notice_title:"Notice",verify_notice:"Only one dream can be sent if you do not verify your account.",verify_btn_go:"Verify Account",verify_resend:"Resend Code",
                 exit_btn:"Exit"
             },
             it: {
@@ -546,6 +553,7 @@
                 footer_copyright:"© 2026 Mondo Onirico",footer_disclaimer:"Interpretazioni private e riservate.",
                 footer_terms:"Termini e Condizioni",footer_privacy:"Informativa sulla Privacy",
                 terms_link:"✦ Termini e Condizioni — Contratto Legale ✦",
+                verify_title:"Verifica il tuo Account",verify_desc:"Inserisci il codice a 6 cifre inviato alla tua email.",verify_continue:"Continua",verify_btn:"Verifica Account",verify_notice_title:"Avviso",verify_notice:"Solo un sogno può essere inviato senza verifica.",verify_btn_go:"Verifica Account",verify_resend:"Invia di Nuovo",
                 exit_btn:"Esci"
             },
             pt: {
@@ -580,6 +588,7 @@
                 footer_copyright:"© 2026 Mundo Onírico",footer_disclaimer:"Interpretações privadas e confidenciais.",
                 footer_terms:"Termos e Condições",footer_privacy:"Política de Privacidade",
                 terms_link:"✦ Termos e Condições — Contrato Legal ✦",
+                verify_title:"Verifique sua Conta",verify_desc:"Insira o código de 6 dígitos enviado ao seu email.",verify_continue:"Continuar",verify_btn:"Verificar Conta",verify_notice_title:"Aviso",verify_notice:"Apenas um sonho pode ser enviado sem verificação.",verify_btn_go:"Verificar Conta",verify_resend:"Reenviar Código",
                 exit_btn:"Sair"
             },
             fr: {
@@ -614,6 +623,7 @@
                 footer_copyright:"© 2026 Monde Onirique",footer_disclaimer:"Interpretations privées et confidentielles.",
                 footer_terms:"Termes et Conditions",footer_privacy:"Politique de Confidentialité",
                 terms_link:"✦ Termes et Conditions — Contrat Légal ✦",
+                verify_title:"Vérifiez votre Compte",verify_desc:"Entrez le code à 6 chiffres envoyé à votre email.",verify_continue:"Continuer",verify_btn:"Vérifier le Compte",verify_notice_title:"Avis",verify_notice:"Un seul rêve peut être envoyé sans vérification.",verify_btn_go:"Vérifier le Compte",verify_resend:"Renvoyer le Code",
                 exit_btn:"Sortir"
             }
         };
@@ -628,7 +638,7 @@
         if (currentToken) {
             try {
                 const payload = JSON.parse(atob(currentToken.split('.')[1]));
-                currentUser = { _id: payload.id, email: payload.email, role: payload.role };
+                currentUser = { _id: payload.id, email: payload.email, role: payload.role, emailVerified: payload.emailVerified || false };
             } catch (e) {
                 localStorage.removeItem('onirico_token');
                 currentToken = null;
@@ -781,6 +791,8 @@
             auth.classList.add('hidden'); form.classList.remove('hidden');
             anon.classList.add('hidden'); authW.classList.remove('hidden');
             document.getElementById('user-welcome-username').textContent = currentUser.name;
+            const vb = document.getElementById('verify-banner');
+            if (currentUser.emailVerified) { vb.classList.add('hidden'); } else { vb.classList.remove('hidden'); }
             ql.classList.add('hidden'); langSel.classList.add('hidden');
             selectedUserDreamId = null; showNewDreamForm(); renderUserMailbox();
         }
@@ -800,6 +812,63 @@
                 await api.post('/dreams', { title, text });
                 showModal('Visión Enviada', 'Tu sueño "' + title + '" ha ingresado a mi fila.');
                 showNewDreamForm(); renderUserMailbox();
+            } catch (err) {
+                if (err.message === 'VERIFICATION_REQUIRED') {
+                    showVerificationView();
+                } else {
+                    showModal('Error', err.message);
+                }
+            }
+        }
+
+        function showVerificationView() {
+            const pane = document.getElementById('user-active-reader');
+            pane.innerHTML = `
+                <div class="space-y-6 py-4 text-center">
+                    <div class="text-4xl">🔐</div>
+                    <h3 class="text-sm font-bold text-amber-200 uppercase tracking-widest">${translations[currentLang]?.verify_title||'Verifica tu Cuenta'}</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">${translations[currentLang]?.verify_desc||'Ingresa el código de 6 dígitos que enviamos a tu correo para seguir enviando sueños.'}</p>
+                    <input type="text" id="verify-code-input" maxlength="6" placeholder="000000" class="w-40 mx-auto text-center text-lg font-bold tracking-[8px] px-4 py-3 rounded-xl glass-input text-amber-200">
+                    <div id="verify-error" class="text-red-400 text-[10px] hidden"></div>
+                    <button onclick="resendVerificationCode()" class="text-[9px] text-amber-300 hover:text-amber-200 underline font-bold uppercase tracking-widest" data-i18n="verify_resend">Reenviar Código</button>
+                    <div class="flex gap-3 justify-center">
+                        <button onclick="showNewDreamForm()" class="px-6 py-2.5 border border-white/10 text-slate-300 hover:text-white text-[10px] font-bold uppercase tracking-widest rounded-xl transition">${translations[currentLang]?.verify_continue||'Continuar'}</button>
+                        <button onclick="submitVerificationCode()" class="px-6 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-[10px] tracking-widest rounded-xl transition uppercase">${translations[currentLang]?.verify_btn||'Verificar Cuenta'}</button>
+                    </div>
+                    <div class="mt-2 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                        <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">✦ ${translations[currentLang]?.verify_notice_title||'Aviso'}</p>
+                        <p class="text-[10px] text-amber-300/80 mt-1">${translations[currentLang]?.verify_notice||'Solo se podrá enviar un sueño si no verificas la cuenta.'}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('verify-code-input')?.focus();
+        }
+
+        async function submitVerificationCode() {
+            const code = document.getElementById('verify-code-input')?.value.trim();
+            const errEl = document.getElementById('verify-error');
+            if (!code || code.length !== 6) {
+                errEl.textContent = 'Ingresa el código de 6 dígitos.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            errEl.classList.add('hidden');
+            try {
+                const data = await api.post('/auth/verify', { code });
+                currentUser = data.user;
+                updateUserInterface();
+                showModal('Cuenta Verificada', 'Tu cuenta ha sido verificada. Ahora puedes enviar más sueños.');
+                showNewDreamForm();
+            } catch (err) {
+                errEl.textContent = err.message;
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        async function resendVerificationCode() {
+            try {
+                await api.post('/auth/resend-code');
+                showModal('Código Reenviado', 'Revisa tu correo electrónico.');
             } catch (err) { showModal('Error', err.message); }
         }
 
@@ -827,7 +896,11 @@
         function showNewDreamForm() {
             selectedUserDreamId = null; renderUserMailbox();
             const pane = document.getElementById('user-active-reader');
-            pane.innerHTML = `
+            let bannerHtml = '';
+            if (currentUser && !currentUser.emailVerified) {
+                bannerHtml = `<div class="mb-3 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center"><p class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">${translations[currentLang]?.verify_notice||'Solo se podrá enviar un sueño si no verificas la cuenta.'}</p><button onclick="showVerificationView()" class="mt-1 text-[9px] text-amber-400 hover:text-amber-300 underline font-bold uppercase tracking-widest">${translations[currentLang]?.verify_btn||'Verificar Cuenta'}</button></div>`;
+            }
+            pane.innerHTML = `${bannerHtml}
                 <div class="space-y-4 overflow-y-auto max-h-[350px] pr-2">
                     <div class="border-b border-white/5 pb-2"><h3 class="font-bold text-xs text-amber-200 uppercase tracking-widest">${translations[currentLang]?.reader_active_title||'Enviar Nueva Visión'}</h3><p class="text-[10px] text-purple-300">${translations[currentLang]?.reader_active_sub||'Describe tu experiencia onírica'}</p></div>
                     <div class="space-y-1"><label class="block text-[10px] font-bold text-amber-300 uppercase tracking-widest">${translations[currentLang]?.label_dream_title||'Título del sueño'}</label><input type="text" id="dream-title" placeholder="${translations[currentLang]?.placeholder_dream_title||'Ej: El laberinto de espejos dorados'}" class="w-full px-4 py-3 rounded-xl glass-input text-xs"></div>
