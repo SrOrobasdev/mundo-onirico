@@ -5,7 +5,21 @@ const { authenticate } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.post('/', authenticate, [
+const limitOneDreamPer3h = async (req, res, next) => {
+  try {
+    const last = await Dream.findOne({ user: req.user._id }).sort({ createdAt: -1 });
+    if (last) {
+      const hoursElapsed = (Date.now() - new Date(last.createdAt).getTime()) / 3600000;
+      if (hoursElapsed < 3) {
+        const remaining = Math.ceil((3 - hoursElapsed) * 10) / 10;
+        return res.status(429).json({ error: `Puedes enviar un sueño cada 3 horas. Vuelve en ${remaining.toFixed(1)}h.` });
+      }
+    }
+    next();
+  } catch { next(); }
+};
+
+router.post('/', authenticate, limitOneDreamPer3h, [
   body('title').trim().notEmpty().withMessage('El título es requerido'),
   body('text').trim().notEmpty().withMessage('La descripción del sueño es requerida')
     .isLength({ min: 10 }).withMessage('Describe tu sueño con al menos 10 caracteres')

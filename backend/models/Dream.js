@@ -37,4 +37,6 @@ const dreamSchema = new mongoose.Schema({
   timestamps: true
 });
 
+dreamSchema.index({ user: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Dream', dreamSchema);
