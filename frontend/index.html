@@ -635,6 +635,8 @@
             }
         }
 
+        function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
         const api = {
             get: async (url) => {
                 const res = await fetch(`${API_BASE_URL}/api${url}`, {
@@ -741,12 +743,12 @@
                 }
                 currentToken = data.token; localStorage.setItem('onirico_token', currentToken);
                 currentUser = data.user;
-                showModal('Acceso Exitoso', `Bienvenido, <strong>${data.user.name}</strong>.`);
+                showModal('Acceso Exitoso', 'Bienvenido, ' + data.user.name + '.');
                 updateUserInterface();
             } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
         }
 
-        function loginWithGoogle() { showModal('Próximamente', '<div class="text-center space-y-3"><p class="text-slate-300">El inicio de sesión con Google estará disponible pronto.</p><p class="text-[10px] text-slate-400">Por ahora, regístrate con tu correo electrónico.</p></div>'); }
+        function loginWithGoogle() { showModalHTML('Próximamente', '<div class="text-center space-y-3"><p class="text-slate-300">El inicio de sesión con Google estará disponible pronto.</p><p class="text-[10px] text-slate-400">Por ahora, regístrate con tu correo electrónico.</p></div>'); }
 
         function updateUserInterface() {
             const h = { user: document.getElementById('user-header'), admin: document.getElementById('admin-header') };
@@ -775,7 +777,7 @@
             }
             h.admin.classList.add('hidden'); m.admin.classList.add('hidden');
             h.user.classList.remove('hidden'); m.user.classList.remove('hidden');
-            nav.innerHTML = `<div class="flex items-center gap-2"><span class="text-xs font-semibold text-slate-200">🕯️ ${currentUser.name}</span><button onclick="logout()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest border border-red-500/20 bg-red-500/5 px-4 py-1.5 rounded-xl transition-all">${translations[currentLang]?.exit_btn||'Salir'}</button></div>`;
+            nav.innerHTML = `<div class="flex items-center gap-2"><span class="text-xs font-semibold text-slate-200">🕯️ ${esc(currentUser.name)}</span><button onclick="logout()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest border border-red-500/20 bg-red-500/5 px-4 py-1.5 rounded-xl transition-all">${translations[currentLang]?.exit_btn||'Salir'}</button></div>`;
             auth.classList.add('hidden'); form.classList.remove('hidden');
             anon.classList.add('hidden'); authW.classList.remove('hidden');
             document.getElementById('user-welcome-username').textContent = currentUser.name;
@@ -796,7 +798,7 @@
             if (!text) return showModal('Campo Vacío', 'Describe tu visión detalladamente.');
             try {
                 await api.post('/dreams', { title, text });
-                showModal('Visión Enviada', `Tu sueño <strong>"${title}"</strong> ha ingresado a mi fila.`);
+                showModal('Visión Enviada', 'Tu sueño "' + title + '" ha ingresado a mi fila.');
                 showNewDreamForm(); renderUserMailbox();
             } catch (err) { showModal('Error', err.message); }
         }
@@ -816,7 +818,7 @@
                     item.onclick = () => selectUserDream(d._id);
                     const sl = d.status === 'Pendiente' ? (translations[currentLang]?.status_pending||'● Pendiente') : (translations[currentLang]?.status_completed||'✓ Interpretado');
                     const sc = d.status === 'Pendiente' ? 'text-amber-400' : 'text-green-400';
-                    item.innerHTML = `<div class="flex justify-between items-start gap-2"><h4 class="font-bold text-xs text-amber-200 truncate max-w-[120px]">${d.title}</h4><span class="text-[9px] text-slate-400">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><p class="text-[10px] text-slate-400 truncate">"${d.text}"</p><div class="flex justify-between items-center mt-1 pt-1 border-t border-white/5"><span class="text-[9px] uppercase tracking-wider font-bold ${sc}">${sl}</span></div>`;
+                    item.innerHTML = `<div class="flex justify-between items-start gap-2"><h4 class="font-bold text-xs text-amber-200 truncate max-w-[120px]">${esc(d.title)}</h4><span class="text-[9px] text-slate-400">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><p class="text-[10px] text-slate-400 truncate">"${esc(d.text)}"</p><div class="flex justify-between items-center mt-1 pt-1 border-t border-white/5"><span class="text-[9px] uppercase tracking-wider font-bold ${sc}">${sl}</span></div>`;
                     list.appendChild(item);
                 });
             } catch (e) { list.innerHTML = `<div class="text-center py-10 text-red-400 italic text-xs">Error</div>`; }
@@ -854,9 +856,9 @@
                             rf = `<div class="p-3 bg-green-500/5 border border-green-500/10 rounded-xl text-center"><p class="text-[9px] text-green-300 italic">${translations[currentLang]?.review_success_msg||'✓ Ya calificaste esta revelación.'}</p></div>`;
                         }
                     } catch(e) { rf = ''; }
-                    ic = `<div class="space-y-3"><span class="block text-[10px] text-green-400 font-bold uppercase tracking-wider">${translations[currentLang]?.label_interpretation||'✓ Interpretación:'}</span><div class="p-4 rounded-xl bg-green-500/5 border border-green-500/10 text-xs text-slate-200 leading-relaxed font-medium whitespace-pre-line italic">${d.interpretation}</div>${rf}</div>`;
+                    ic = `<div class="space-y-3"><span class="block text-[10px] text-green-400 font-bold uppercase tracking-wider">${translations[currentLang]?.label_interpretation||'✓ Interpretación:'}</span><div class="p-4 rounded-xl bg-green-500/5 border border-green-500/10 text-xs text-slate-200 leading-relaxed font-medium whitespace-pre-line italic">${esc(d.interpretation)}</div>${rf}</div>`;
                 }
-                pane.innerHTML = `<div class="space-y-4 overflow-y-auto max-h-[480px] pr-2 flex-grow"><div class="p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center"><div><p class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">${translations[currentLang]?.label_sent_detail||'Tu Detalle'}</p><h4 class="text-[11px] font-semibold text-slate-300">${translations[currentLang]?.label_vision_history||'Historial'}</h4></div><span class="text-[9px] text-slate-400 font-semibold uppercase">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><div class="space-y-1"><h3 class="text-sm font-bold text-amber-200 font-serif">"${d.title}"</h3><div class="p-4 rounded-xl bg-white/5 border border-white/5 text-xs text-slate-300 leading-relaxed italic whitespace-pre-line">"${d.text}"</div></div>${ic}</div>`;
+                pane.innerHTML = `<div class="space-y-4 overflow-y-auto max-h-[480px] pr-2 flex-grow"><div class="p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center"><div><p class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">${translations[currentLang]?.label_sent_detail||'Tu Detalle'}</p><h4 class="text-[11px] font-semibold text-slate-300">${translations[currentLang]?.label_vision_history||'Historial'}</h4></div><span class="text-[9px] text-slate-400 font-semibold uppercase">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><div class="space-y-1"><h3 class="text-sm font-bold text-amber-200 font-serif">"${esc(d.title)}"</h3><div class="p-4 rounded-xl bg-white/5 border border-white/5 text-xs text-slate-300 leading-relaxed italic whitespace-pre-line">"${esc(d.text)}"</div></div>${ic}</div>`;
                 selectedRating = 5;
             } catch(e) { showModal('Error', 'No se pudo cargar el sueño.'); }
         }
@@ -886,7 +888,7 @@
                     const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
                     const card = document.createElement('div');
                     card.className = 'glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4 hover:shadow-lg transition';
-                    card.innerHTML = `<div class="space-y-2"><div class="text-amber-400 text-sm font-bold">${stars}</div><p class="text-xs text-slate-300 italic leading-relaxed">"${r.text}"</p></div><div class="border-t border-white/5 pt-3"><h5 class="font-bold text-xs text-amber-200">${r.user?.name || r.userName}</h5><p class="text-[9px] text-slate-400 font-semibold">${new Date(r.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</p></div>`;
+                    card.innerHTML = `<div class="space-y-2"><div class="text-amber-400 text-sm font-bold">${stars}</div><p class="text-xs text-slate-300 italic leading-relaxed">"${esc(r.text)}"</p></div><div class="border-t border-white/5 pt-3"><h5 class="font-bold text-xs text-amber-200">${esc(r.user?.name || r.userName)}</h5><p class="text-[9px] text-slate-400 font-semibold">${new Date(r.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</p></div>`;
                     grid.appendChild(card);
                 });
             } catch(e) { grid.innerHTML = `<div class="col-span-3 text-center py-10 text-red-400 italic text-xs">Error al cargar reseñas.</div>`; }
@@ -912,7 +914,7 @@
 
                 const al = document.getElementById('admin-accounts-list');
                 if (usersData.users.length === 0) { al.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No hay cuentas</p>`; }
-                else { al.innerHTML = usersData.users.map(u => `<div class="p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition"><div><h4 class="text-xs font-bold text-slate-200">${u.name}</h4><p class="text-[9px] text-slate-400">${u.email}</p></div><span class="text-[10px] bg-purple-500/10 text-purple-300 font-semibold px-2 py-0.5 rounded-full border border-purple-500/20">${u.dreamCount} sueños</span></div>`).join(''); }
+                else { al.innerHTML = usersData.users.map(u => `<div class="p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition"><div><h4 class="text-xs font-bold text-slate-200">${esc(u.name)}</h4><p class="text-[9px] text-slate-400">${esc(u.email)}</p></div><span class="text-[10px] bg-purple-500/10 text-purple-300 font-semibold px-2 py-0.5 rounded-full border border-purple-500/20">${u.dreamCount} sueños</span></div>`).join(''); }
 
                 renderAdminMailbox(dreamsData.dreams);
             } catch(e) { showModal('Error', 'Error al cargar panel admin.'); }
@@ -928,7 +930,7 @@
                 const item = document.createElement('div');
                 item.className = `p-3 rounded-xl border cursor-pointer transition text-left flex flex-col gap-1 ${sel ? 'bg-amber-500/10 border-amber-500/40' : 'bg-white/5 border-white/5 hover:bg-white/10'}`;
                 item.onclick = () => selectDreamForReading(d._id);
-                item.innerHTML = `<div class="flex justify-between items-start"><span class="text-[10px] font-bold text-amber-200 truncate max-w-[120px]">${d.user?.name||'Usuario'}</span><span class="text-[9px] text-slate-400">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><h4 class="text-xs font-semibold text-slate-200 truncate">${d.title}</h4><p class="text-[10px] text-slate-400 truncate">"${d.text}"</p><div class="flex justify-between items-center mt-1 pt-1 border-t border-white/5"><span class="text-[9px] uppercase tracking-wider font-bold ${d.status==='Pendiente'?'text-amber-400':'text-green-400'}">${d.status==='Pendiente'?'● Pendiente':'✓ Respondido'}</span></div>`;
+                item.innerHTML = `<div class="flex justify-between items-start"><span class="text-[10px] font-bold text-amber-200 truncate max-w-[120px]">${esc(d.user?.name||'Usuario')}</span><span class="text-[9px] text-slate-400">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><h4 class="text-xs font-semibold text-slate-200 truncate">${esc(d.title)}</h4><p class="text-[10px] text-slate-400 truncate">"${esc(d.text)}"</p><div class="flex justify-between items-center mt-1 pt-1 border-t border-white/5"><span class="text-[9px] uppercase tracking-wider font-bold ${d.status==='Pendiente'?'text-amber-400':'text-green-400'}">${d.status==='Pendiente'?'● Pendiente':'✓ Respondido'}</span></div>`;
                 list.appendChild(item);
             });
         }
@@ -962,7 +964,7 @@
             if (!text) return showModal('Falta Análisis', 'Redacta la interpretación primero.');
             try {
                 await api.post(`/admin/dreams/${selectedDreamId}/interpret`, { interpretation: text });
-                showModal('Revelación Enviada ✦', `<div class="space-y-3"><p>Interpretación guardada y correo enviado al usuario.</p><div class="p-3 bg-green-500/10 border border-green-500/20 rounded-xl"><h4 class="text-xs font-bold text-green-300">📧 Correo notificación enviado</h4></div></div>`);
+                showModalHTML('Revelación Enviada ✦', `<div class="space-y-3"><p>Interpretación guardada y correo enviado al usuario.</p><div class="p-3 bg-green-500/10 border border-green-500/20 rounded-xl"><h4 class="text-xs font-bold text-green-300">📧 Correo notificación enviado</h4></div></div>`);
                 renderAdminPanel();
             } catch(e) { showModal('Error', e.message); }
         }
@@ -982,14 +984,14 @@
                     ? `<p class="text-xs text-slate-400 text-center py-8 italic">No hay reseñas pendientes.</p>`
                     : pending.map(r => {
                         const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-                        return `<div class="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3"><div class="flex justify-between items-start gap-4"><div><h4 class="text-xs font-bold text-slate-100">${r.user?.name||r.userName} <span class="text-[9px] text-slate-400">(${r.user?.email||r.userEmail})</span></h4><span class="text-xs text-amber-400">${stars}</span></div><span class="text-[9px] text-slate-400">${new Date(r.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><p class="text-xs text-slate-300 leading-relaxed italic">"${r.text}"</p><div class="flex gap-2 justify-end"><button onclick="approveReview('${r._id}')" class="bg-green-500 hover:bg-green-600 text-slate-950 font-bold text-[9px] uppercase px-3 py-1.5 rounded-lg transition">Aprobar</button><button onclick="rejectReview('${r._id}')" class="bg-red-500/20 border border-red-500/40 hover:bg-red-500 text-red-300 hover:text-slate-950 font-bold text-[9px] uppercase px-3 py-1.5 rounded-lg transition">Eliminar</button></div></div>`;
+                        return `<div class="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3"><div class="flex justify-between items-start gap-4"><div><h4 class="text-xs font-bold text-slate-100">${esc(r.user?.name||r.userName)} <span class="text-[9px] text-slate-400">(${esc(r.user?.email||r.userEmail)})</span></h4><span class="text-xs text-amber-400">${stars}</span></div><span class="text-[9px] text-slate-400">${new Date(r.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><p class="text-xs text-slate-300 leading-relaxed italic">"${esc(r.text)}"</p><div class="flex gap-2 justify-end"><button onclick="approveReview('${r._id}')" class="bg-green-500 hover:bg-green-600 text-slate-950 font-bold text-[9px] uppercase px-3 py-1.5 rounded-lg transition">Aprobar</button><button onclick="rejectReview('${r._id}')" class="bg-red-500/20 border border-red-500/40 hover:bg-red-500 text-red-300 hover:text-slate-950 font-bold text-[9px] uppercase px-3 py-1.5 rounded-lg transition">Eliminar</button></div></div>`;
                     }).join('');
 
                 approvedList.innerHTML = approved.length === 0
                     ? `<p class="text-xs text-slate-500 text-center py-8 italic">No hay reseñas publicadas.</p>`
                     : approved.map(r => {
                         const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-                        return `<div class="p-3 rounded-lg bg-white/5 border border-white/5 text-left flex flex-col gap-1"><div class="flex justify-between items-start"><span class="text-[10px] font-bold text-amber-200">${r.user?.name||r.userName}</span><span class="text-[9px] text-slate-400">${new Date(r.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><span class="text-xs text-amber-400">${stars}</span><p class="text-[11px] text-slate-300 italic mt-1">"${r.text}"</p><button onclick="rejectReview('${r._id}')" class="text-[9px] text-red-400 hover:underline text-right mt-2 font-bold uppercase">Revocar</button></div>`;
+                        return `<div class="p-3 rounded-lg bg-white/5 border border-white/5 text-left flex flex-col gap-1"><div class="flex justify-between items-start"><span class="text-[10px] font-bold text-amber-200">${esc(r.user?.name||r.userName)}</span><span class="text-[9px] text-slate-400">${new Date(r.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><span class="text-xs text-amber-400">${stars}</span><p class="text-[11px] text-slate-300 italic mt-1">"${esc(r.text)}"</p><button onclick="rejectReview('${r._id}')" class="text-[9px] text-red-400 hover:underline text-right mt-2 font-bold uppercase">Revocar</button></div>`;
                     }).join('');
             } catch(e) { showModal('Error', 'Error al cargar reseñas.'); }
         }
@@ -1004,8 +1006,13 @@
             catch(e) { showModal('Error', e.message); }
         }
 
-        function showModal(title, html) {
-            document.getElementById('modal-title').innerHTML = title;
+        function showModal(title, text) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').textContent = text;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+        function showModalHTML(title, html) {
+            document.getElementById('modal-title').textContent = title;
             document.getElementById('modal-body').innerHTML = html;
             document.getElementById('custom-modal').classList.remove('hidden');
         }

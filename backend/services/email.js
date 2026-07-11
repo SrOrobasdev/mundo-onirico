@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 
+const esc = str => String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT),
@@ -22,7 +24,7 @@ const sendWelcomeEmail = async (user) => {
             <h1 style="color: #e0a96d; font-size: 24px; text-align: center;">🌙 Mundo Onírico</h1>
             <p style="text-align: center; color: #a78bfa; font-size: 12px; text-transform: uppercase; letter-spacing: 3px;">El Espejo del Subconsciente</p>
             <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: 24px 0;">
-            <h2 style="color: #f5d6b3; font-size: 18px;">Bienvenido, ${user.name} ✦</h2>
+            <h2 style="color: #f5d6b3; font-size: 18px;">Bienvenido, ${esc(user.name)} ✦</h2>
             <p style="color: #cbd5e1; line-height: 1.8; font-size: 14px;">
               Tu portal personal de interpretación onírica ha sido creado.<br><br>
               Ahora puedes enviar tus sueños para que sean interpretados y recibir respuestas personalizadas directamente en tu tablero.
@@ -57,9 +59,9 @@ const sendInterpretationNotification = async (user, dream) => {
             <h1 style="color: #e0a96d; font-size: 24px; text-align: center;">🌙 Mundo Onírico</h1>
             <p style="text-align: center; color: #a78bfa; font-size: 12px; text-transform: uppercase; letter-spacing: 3px;">Tu interpretación está lista</p>
             <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: 24px 0;">
-            <h2 style="color: #f5d6b3; font-size: 18px;">Hola, ${user.name} ✦</h2>
+            <h2 style="color: #f5d6b3; font-size: 18px;">Hola, ${esc(user.name)} ✦</h2>
             <p style="color: #cbd5e1; line-height: 1.8; font-size: 14px;">
-              He terminado de analizar tu sueño <strong style="color: #e0a96d;">"${dream.title}"</strong>.<br><br>
+              He terminado de analizar tu sueño <strong style="color: #e0a96d;">"${esc(dream.title)}"</strong>.<br><br>
               He canalizado una interpretación profunda y personalizada para ti. Puedes leerla completa ingresando a tu tablero personal.
             </p>
             <div style="text-align: center; margin: 32px 0;">
