@@ -422,13 +422,18 @@
         <div class="container mx-auto px-4 text-center space-y-2">
             <p class="text-xs text-purple-300" data-i18n="footer_copyright">© 2026 Mundo Onírico • Diseñado para Exploradores del Subconsciente</p>
             <p class="text-[9px] text-slate-500" data-i18n="footer_disclaimer">Cada interpretación es privada, confidencial y enfocada en tu autoconocimiento reflexivo.</p>
+            <p class="text-[10px] text-slate-400 mt-2 space-x-4">
+                <a href="#" onclick="showTerms(); return false;" class="hover:text-amber-400 transition underline underline-offset-2" data-i18n="footer_terms">Términos y Condiciones</a>
+                <span class="text-slate-600">|</span>
+                <a href="#" onclick="showPrivacy(); return false;" class="hover:text-amber-400 transition underline underline-offset-2" data-i18n="footer_privacy">Aviso de Privacidad</a>
+            </p>
         </div>
     </footer>
 
     <script>
         const API_BASE_URL = window.location.origin.includes('localhost')
             ? 'http://localhost:5000'
-            : 'https://mundo-onirico-backend.up.railway.app';
+            : window.location.origin;
 
         const translations = {
             es: {
@@ -464,6 +469,7 @@
                 who_name_title:"Tu Nombre",who_subtitle:"Guía & Intérprete Onírico",
                 footer_copyright:"© 2026 Mundo Onírico • Diseñado para Exploradores del Subconsciente",
                 footer_disclaimer:"Cada interpretación es privada, confidencial y enfocada en tu autoconocimiento reflexivo.",
+                footer_terms:"Términos y Condiciones",footer_privacy:"Aviso de Privacidad",
                 exit_btn:"Salir"
             },
             en: {
@@ -499,6 +505,7 @@
                 who_name_title:"Your Name",who_subtitle:"Dream Guide & Interpreter",
                 footer_copyright:"© 2026 Dream World • Designed for Subconscious Explorers",
                 footer_disclaimer:"Each interpretation is private, confidential, and focused on reflective self-knowledge.",
+                footer_terms:"Terms & Conditions",footer_privacy:"Privacy Policy",
                 exit_btn:"Exit"
             },
             it: {
@@ -531,6 +538,7 @@
                 who_f_commitment:"✦ Impegno",who_f_commitment_desc:"Privacy assoluta. Ogni sogno è sacro.",
                 who_name_title:"Tuo Nome",who_subtitle:"Guida Onirica",
                 footer_copyright:"© 2026 Mondo Onirico",footer_disclaimer:"Interpretazioni private e riservate.",
+                footer_terms:"Termini e Condizioni",footer_privacy:"Informativa sulla Privacy",
                 exit_btn:"Esci"
             },
             pt: {
@@ -563,6 +571,7 @@
                 who_f_commitment:"✦ Compromisso",who_f_commitment_desc:"Privacidade absoluta. Cada sonho é sagrado.",
                 who_name_title:"Seu Nome",who_subtitle:"Guia Onírico",
                 footer_copyright:"© 2026 Mundo Onírico",footer_disclaimer:"Interpretações privadas e confidenciais.",
+                footer_terms:"Termos e Condições",footer_privacy:"Política de Privacidade",
                 exit_btn:"Sair"
             },
             fr: {
@@ -595,6 +604,7 @@
                 who_f_commitment:"✦ Engagement",who_f_commitment_desc:"Confidentialité absolue. Chaque rêve est sacré.",
                 who_name_title:"Votre Nom",who_subtitle:"Guide Onirique",
                 footer_copyright:"© 2026 Monde Onirique",footer_disclaimer:"Interpretations privées et confidentielles.",
+                footer_terms:"Termes et Conditions",footer_privacy:"Politique de Confidentialité",
                 exit_btn:"Sortir"
             }
         };
@@ -989,6 +999,8 @@
             document.getElementById('custom-modal').classList.remove('hidden');
         }
         function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+        function showTerms() { openModal('Términos y Condiciones', `<div class="space-y-3 text-xs text-slate-200"><p><b>1. Aceptación de los términos</b><br>Al usar Mundo Onírico, aceptas estos términos. Si no estás de acuerdo, no uses el servicio.</p><p><b>2. Descripción del servicio</b><br>Mundo Onírico ofrece interpretaciones de sueños con fines de autoconocimiento y entretenimiento. Las interpretaciones no constituyen consejo médico, psicológico ni profesional.</p><p><b>3. Privacidad de los datos</b><br>Tus sueños y datos personales son privados. No compartimos tu información con terceros. Ver nuestro Aviso de Privacidad.</p><p><b>4. Uso responsable</b><br>Eres responsable del contenido que compartes. No publiques información ilegal, ofensiva o que infrinja derechos de terceros.</p><p><b>5. Limitación de responsabilidad</b><br>Mundo Onírico no se hace responsable por decisiones tomadas basadas en las interpretaciones. Es una herramienta de reflexión personal.</p><p><b>6. Cambios</b><br>Podemos actualizar estos términos. El uso continuado del servicio implica aceptación de los cambios.</p><p><b>7. Contacto</b><br>Para consultas: <span class="text-amber-400">admin@mundoonirico.com</span></p></div>`); }
+        function showPrivacy() { openModal('Aviso de Privacidad', `<div class="space-y-3 text-xs text-slate-200"><p><b>1. Datos que recopilamos</b><br>Recopilamos: nombre, correo electrónico, contraseña (cifrada), y los textos de los sueños que envías voluntariamente.</p><p><b>2. Uso de los datos</b><br>Usamos tus datos únicamente para: gestionar tu cuenta, proveer interpretaciones de sueños, y mejorar el servicio.</p><p><b>3. Almacenamiento</b><br>Tus datos se almacenan de forma segura en MongoDB Atlas (AWS São Paulo). Tomamos medidas de seguridad estándar.</p><p><b>4. No compartimos tus datos</b><br>No vendemos, alquilamos ni compartimos tu información personal con terceros. Jamás.</p><p><b>5. Tus derechos</b><br>Puedes solicitar la eliminación de tus datos y cuenta en cualquier momento escribiendo a <span class="text-amber-400">admin@mundoonirico.com</span>.</p><p><b>6. Cookies</b><br>Usamos localStorage para mantener tu sesión iniciada. No usamos cookies de rastreo ni publicitarias.</p><p><b>7. Cambios</b><br>Si este aviso cambia, te notificaremos en la página.</p></div>`); }
 
         window.onload = () => {
             switchTab('analizar');
