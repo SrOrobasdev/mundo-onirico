@@ -24,7 +24,7 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   credentials: true
 }));
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '30kb' }));
 
 const frontendPath = path.join(__dirname, '..', 'frontend');
 app.use(express.static(frontendPath));
