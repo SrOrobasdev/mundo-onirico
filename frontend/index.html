@@ -235,7 +235,7 @@
             </div>
 
             <div class="max-w-md mx-auto text-center mb-4">
-                <a href="/terminos-y-condiciones.pdf" target="_blank" class="inline-block text-xs text-amber-300 font-bold tracking-widest uppercase glow-pulse hover:text-amber-200 transition-colors">✦ Términos y Condiciones — Contrato Legal ✦</a>
+                <a id="terms-link" href="/terms/es.pdf" target="_blank" class="inline-block text-xs text-amber-300 font-bold tracking-widest uppercase glow-pulse hover:text-amber-200 transition-colors" data-i18n="terms_link">✦ Términos y Condiciones — Contrato Legal ✦</a>
             </div>
 
             <div id="lang-selector-container" class="max-w-md mx-auto p-4 rounded-2xl border border-emerald-500/20 bg-emerald-950/15 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -474,6 +474,7 @@
                 footer_copyright:"© 2026 Mundo Onírico • Diseñado para Exploradores del Subconsciente",
                 footer_disclaimer:"Cada interpretación es privada, confidencial y enfocada en tu autoconocimiento reflexivo.",
                 footer_terms:"Términos y Condiciones",footer_privacy:"Aviso de Privacidad",
+                terms_link:"✦ Términos y Condiciones — Contrato Legal ✦",
                 exit_btn:"Salir"
             },
             en: {
@@ -510,6 +511,7 @@
                 footer_copyright:"© 2026 Dream World • Designed for Subconscious Explorers",
                 footer_disclaimer:"Each interpretation is private, confidential, and focused on reflective self-knowledge.",
                 footer_terms:"Terms & Conditions",footer_privacy:"Privacy Policy",
+                terms_link:"✦ Terms & Conditions — Legal Contract ✦",
                 exit_btn:"Exit"
             },
             it: {
@@ -543,6 +545,7 @@
                 who_name_title:"Tuo Nome",who_subtitle:"Guida Onirica",
                 footer_copyright:"© 2026 Mondo Onirico",footer_disclaimer:"Interpretazioni private e riservate.",
                 footer_terms:"Termini e Condizioni",footer_privacy:"Informativa sulla Privacy",
+                terms_link:"✦ Termini e Condizioni — Contratto Legale ✦",
                 exit_btn:"Esci"
             },
             pt: {
@@ -576,6 +579,7 @@
                 who_name_title:"Seu Nome",who_subtitle:"Guia Onírico",
                 footer_copyright:"© 2026 Mundo Onírico",footer_disclaimer:"Interpretações privadas e confidenciais.",
                 footer_terms:"Termos e Condições",footer_privacy:"Política de Privacidade",
+                terms_link:"✦ Termos e Condições — Contrato Legal ✦",
                 exit_btn:"Sair"
             },
             fr: {
@@ -609,6 +613,7 @@
                 who_name_title:"Votre Nom",who_subtitle:"Guide Onirique",
                 footer_copyright:"© 2026 Monde Onirique",footer_disclaimer:"Interpretations privées et confidentielles.",
                 footer_terms:"Termes et Conditions",footer_privacy:"Politique de Confidentialité",
+                terms_link:"✦ Termes et Conditions — Contrat Légal ✦",
                 exit_btn:"Sortir"
             }
         };
@@ -678,6 +683,8 @@
             currentLang = lang; localStorage.setItem('onirico_lang', lang);
             document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (translations[lang]?.[k]) el.innerHTML = translations[lang][k]; });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const k = el.getAttribute('data-i18n-placeholder'); if (translations[lang]?.[k]) el.placeholder = translations[lang][k]; });
+            const link = document.getElementById('terms-link');
+            if (link) link.href = `/terms/${lang}.pdf`;
             document.querySelectorAll('.lang-selector-btn').forEach(b => b.className = "lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border border-white/5 bg-white/5 text-slate-300 hover:bg-white/10 transition-all duration-300");
             const a = document.getElementById(`lang-btn-${lang}`);
             if (a) a.className = "lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 transition-all duration-300 shadow-md shadow-emerald-950/20";
