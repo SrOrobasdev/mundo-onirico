@@ -70,14 +70,31 @@ router.post('/login', [
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
+    if (user.lockUntil && user.lockUntil > new Date()) {
+      const remaining = Math.ceil((user.lockUntil - new Date()) / 60000);
+      return res.status(429).json({ error: `Demasiados intentos. Cuenta bloqueada ${remaining} min.` });
+    }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+      if (user.failedLoginAttempts >= 10) {
+        user.lockUntil = new Date(Date.now() + 30 * 60 * 1000);
+        user.failedLoginAttempts = 0;
+        await user.save();
+        return res.status(429).json({ error: 'Demasiados intentos. Cuenta bloqueada 30 min.' });
+      }
+      await user.save();
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
     if (!user.isActive) {
       return res.status(403).json({ error: 'Cuenta desactivada' });
     }
+
+    user.failedLoginAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
 
     const token = generateToken(user);
 
