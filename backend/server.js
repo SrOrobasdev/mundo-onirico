@@ -14,6 +14,7 @@ const adminRoutes = require('./routes/admin');
 const symbolRoutes = require('./routes/symbols');
 const reviewRoutes = require('./routes/reviews');
 const adminReviewRoutes = require('./routes/admin-reviews');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -106,10 +107,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({ error: 'Error interno del servidor' });
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

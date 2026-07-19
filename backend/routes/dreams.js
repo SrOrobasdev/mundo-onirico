@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Dream = require('../models/Dream');
 const { authenticate } = require('../middleware/auth');
+const { AppError, asyncHandler } = require('../middleware/errorHandler');
 
 const router = express.Router();
 
@@ -35,63 +36,50 @@ router.post('/', authenticate, limitOneDreamPer3h, requireVerifiedForSecondDream
   body('title').trim().notEmpty().withMessage('El título es requerido'),
   body('text').trim().notEmpty().withMessage('La descripción del sueño es requerida')
     .isLength({ min: 10 }).withMessage('Describe tu sueño con al menos 10 caracteres')
-], async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { title, text } = req.body;
-
-    const dream = new Dream({
-      user: req.user._id,
-      title,
-      text,
-      status: 'Pendiente'
-    });
-
-    await dream.save();
-
-    res.status(201).json({
-      message: 'Sueño enviado al intérprete',
-      dream
-    });
-  } catch (error) {
-    console.error('Create dream error:', error);
-    res.status(500).json({ error: 'Error al enviar el sueño' });
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new AppError(errors.array()[0].msg, 400);
   }
-});
 
-router.get('/', authenticate, async (req, res) => {
-  try {
-    const page = Math.max(1, parseInt(req.query.page) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
-    const skip = (page - 1) * limit;
-    const total = await Dream.countDocuments({ user: req.user._id });
-    const dreams = await Dream.find({ user: req.user._id })
-      .sort({ createdAt: -1 }).skip(skip).limit(limit);
-    res.json({ dreams, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener sueños' });
+  const { title, text } = req.body;
+
+  const dream = new Dream({
+    user: req.user._id,
+    title,
+    text,
+    status: 'Pendiente'
+  });
+
+  await dream.save();
+
+  res.status(201).json({
+    message: 'Sueño enviado al intérprete',
+    dream
+  });
+}));
+
+router.get('/', authenticate, asyncHandler(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+  const skip = (page - 1) * limit;
+  const total = await Dream.countDocuments({ user: req.user._id });
+  const dreams = await Dream.find({ user: req.user._id })
+    .sort({ createdAt: -1 }).skip(skip).limit(limit);
+  res.json({ dreams, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
+}));
+
+router.get('/:id', authenticate, asyncHandler(async (req, res) => {
+  const dream = await Dream.findOne({
+    _id: req.params.id,
+    user: req.user._id
+  });
+
+  if (!dream) {
+    throw new AppError('Sueño no encontrado', 404);
   }
-});
 
-router.get('/:id', authenticate, async (req, res) => {
-  try {
-    const dream = await Dream.findOne({
-      _id: req.params.id,
-      user: req.user._id
-    });
-
-    if (!dream) {
-      return res.status(404).json({ error: 'Sueño no encontrado' });
-    }
-
-    res.json({ dream });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener el sueño' });
-  }
-});
+  res.json({ dream });
+}));
 
 module.exports = router;
