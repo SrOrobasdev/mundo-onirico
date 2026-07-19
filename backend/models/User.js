@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -77,8 +78,13 @@ userSchema.methods.toJSON = function() {
 
 userSchema.methods.generateVerificationCode = function() {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  this.verificationCode = code;
+  this.verificationCode = crypto.createHash('sha256').update(code).digest('hex');
   return code;
+};
+
+userSchema.methods.compareVerificationCode = function(code) {
+  const hash = crypto.createHash('sha256').update(code).digest('hex');
+  return hash === this.verificationCode;
 };
 
 module.exports = mongoose.model('User', userSchema);

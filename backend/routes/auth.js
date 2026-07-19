@@ -125,7 +125,7 @@ router.post('/verify', authenticate, [
       return res.json({ message: 'Cuenta ya verificada.', user: req.user.toJSON() });
     }
 
-    if (req.body.code !== req.user.verificationCode) {
+    if (!req.user.compareVerificationCode(req.body.code)) {
       return res.status(400).json({ error: 'Código incorrecto.' });
     }
 
