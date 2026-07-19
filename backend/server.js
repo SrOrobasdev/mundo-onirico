@@ -51,6 +51,13 @@ const verifyLimiter = rateLimit({
 });
 app.use('/api/auth/verify', verifyLimiter);
 
+const resendLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  message: { error: 'Demasiados reenvíos, espera un minuto' }
+});
+app.use('/api/auth/resend-code', resendLimiter);
+
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
