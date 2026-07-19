@@ -635,6 +635,15 @@
         let selectedRating = 5;
         let currentToken = localStorage.getItem('onirico_token');
 
+        if (!currentToken && window.location.hash) {
+            const match = window.location.hash.match(/token=([^&]+)/);
+            if (match) {
+                currentToken = match[1];
+                localStorage.setItem('onirico_token', currentToken);
+                window.location.hash = '';
+            }
+        }
+
         if (currentToken) {
             try {
                 const payload = JSON.parse(atob(currentToken.split('.')[1]));

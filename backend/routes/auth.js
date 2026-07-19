@@ -165,7 +165,7 @@ router.get('/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/?error=google-auth-failed` }),
   (req, res) => {
     const token = generateToken(req.user);
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard.html?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard.html#token=${token}`);
   }
 );
 
