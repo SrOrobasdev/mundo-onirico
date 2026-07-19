@@ -3,8 +3,11 @@ const { body, validationResult } = require('express-validator');
 const Symbol = require('../models/Symbol');
 const { authenticate, requireAdmin, optionalAuth } = require('../middleware/auth');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
+const { validateObjectId } = require('../middleware/validateObjectId');
 
 const router = express.Router();
+
+router.use('/:id', validateObjectId);
 
 router.get('/', optionalAuth, asyncHandler(async (req, res) => {
   const { category } = req.query;

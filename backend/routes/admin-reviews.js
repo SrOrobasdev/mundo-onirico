@@ -3,10 +3,12 @@ const Review = require('../models/Review');
 const AuditLog = require('../models/AuditLog');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
+const { validateObjectId } = require('../middleware/validateObjectId');
 
 const router = express.Router();
 
 router.use(authenticate, requireAdmin);
+router.use('/:id', validateObjectId);
 
 router.get('/', asyncHandler(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page) || 1);

@@ -20,9 +20,22 @@ const app = express();
 
 const path = require('path');
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdn.tailwindcss.com", "'unsafe-inline'"],
+      styleSrc: ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+      frameAncestors: ["'none'"]
+    }
+  }
+}));
+app.use(helmet.hsts({ maxAge: 31536000, includeSubDomains: true }));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: process.env.FRONTEND_URL || 'https://mundo-onirico.onrender.com',
   credentials: true
 }));
 app.use(express.json({ limit: '30kb' }));
@@ -91,6 +104,13 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 } else {
   console.log('⚠️ Google OAuth no configurado - omitido');
 }
+
+const adminLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: { error: 'Demasiadas peticiones administrativas, espera un minuto' }
+});
+app.use('/api/admin', adminLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/dreams', dreamRoutes);

@@ -1204,14 +1204,6 @@
             changeLanguage(currentLang);
             updateUserInterface();
             if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
-            const params = new URLSearchParams(window.location.search);
-            const token = params.get('token');
-            if (token) {
-                currentToken = token; localStorage.setItem('onirico_token', token);
-                try { const p = JSON.parse(atob(token.split('.')[1])); currentUser = { _id: p.id, email: p.email, role: p.role }; } catch(e) {}
-                updateUserInterface();
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
         };
     </script>
 </body>

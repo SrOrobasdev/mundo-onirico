@@ -7,6 +7,7 @@ const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
 const { sendWelcomeEmail, sendVerificationCode } = require('../services/email');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
+const { validateObjectId } = require('../middleware/validateObjectId');
 
 const router = express.Router();
 
@@ -32,7 +33,9 @@ router.post('/register', [
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw new AppError('Este correo ya está registrado', 400);
+    return res.status(200).json({
+      message: 'Si el correo no está registrado, recibirás instrucciones.'
+    });
   }
 
   const user = new User({ name, email, password });
@@ -115,6 +118,10 @@ router.post('/verify', authenticate, [
     return res.json({ message: 'Cuenta ya verificada.', user: req.user.toJSON() });
   }
 
+  if (!req.user.verificationCode || !req.user.verificationCodeExpiresAt || req.user.verificationCodeExpiresAt < new Date()) {
+    throw new AppError('Código expirado. Solicita un nuevo código.', 400);
+  }
+
   if (!req.user.compareVerificationCode(req.body.code)) {
     throw new AppError('Código incorrecto.', 400);
   }
@@ -146,7 +153,7 @@ router.get('/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/?error=google-auth-failed` }),
   (req, res) => {
     const token = generateToken(req.user);
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard.html#token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL}/#token=${token}`);
   }
 );
 

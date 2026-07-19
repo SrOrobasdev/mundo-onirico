@@ -3,8 +3,11 @@ const { body, validationResult } = require('express-validator');
 const Dream = require('../models/Dream');
 const { authenticate } = require('../middleware/auth');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
+const { validateObjectId } = require('../middleware/validateObjectId');
 
 const router = express.Router();
+
+router.use('/:id', validateObjectId);
 
 const limitOneDreamPer3h = async (req, res, next) => {
   try {

@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema({
   verificationCode: {
     type: String,
     default: null
+  },
+  verificationCodeExpiresAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true
@@ -79,6 +83,7 @@ userSchema.methods.toJSON = function() {
 userSchema.methods.generateVerificationCode = function() {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   this.verificationCode = crypto.createHash('sha256').update(code).digest('hex');
+  this.verificationCodeExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
   return code;
 };
 

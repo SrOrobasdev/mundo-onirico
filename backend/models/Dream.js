@@ -13,7 +13,8 @@ const dreamSchema = new mongoose.Schema({
   },
   text: {
     type: String,
-    required: true
+    required: true,
+    maxlength: 15000
   },
   status: {
     type: String,
@@ -22,7 +23,8 @@ const dreamSchema = new mongoose.Schema({
   },
   interpretation: {
     type: String,
-    default: null
+    default: null,
+    maxlength: 15000
   },
   interpretedAt: {
     type: Date,

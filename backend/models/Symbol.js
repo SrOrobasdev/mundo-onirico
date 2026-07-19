@@ -4,7 +4,8 @@ const symbolSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    maxlength: 15000
   },
   emoji: {
     type: String,
@@ -12,7 +13,8 @@ const symbolSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true
+    required: true,
+    maxlength: 15000
   },
   category: {
     type: String,

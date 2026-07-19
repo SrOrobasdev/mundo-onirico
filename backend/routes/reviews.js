@@ -4,8 +4,11 @@ const Review = require('../models/Review');
 const Dream = require('../models/Dream');
 const { authenticate } = require('../middleware/auth');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
+const { validateObjectId } = require('../middleware/validateObjectId');
 
 const router = express.Router();
+
+router.use('/:dreamId', validateObjectId);
 
 router.get('/public', asyncHandler(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page) || 1);

@@ -8,10 +8,12 @@ const AuditLog = require('../models/AuditLog');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 const { sendInterpretationNotification } = require('../services/email');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
+const { validateObjectId } = require('../middleware/validateObjectId');
 
 const router = express.Router();
 
 router.use(authenticate, requireAdmin);
+router.use('/dreams/:id', validateObjectId);
 
 router.get('/dashboard', asyncHandler(async (req, res) => {
   const totalUsers = await User.countDocuments({ role: 'user' });
