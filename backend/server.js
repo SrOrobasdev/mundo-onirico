@@ -1,5 +1,4 @@
 require('dotenv').config();
-const Sentry = require('@sentry/node');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -10,7 +9,11 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('./models/User');
 
 if (process.env.SENTRY_DSN) {
+  const Sentry = require('@sentry/node');
   Sentry.init({ dsn: process.env.SENTRY_DSN });
+  global.__sentry = Sentry;
+} else {
+  console.log('⚠️ Sentry no configurado - omitido');
 }
 
 const authRoutes = require('./routes/auth');
@@ -64,10 +67,6 @@ if (process.env.SENTRY_DSN) {
 }
 
 app.use(express.static(frontendPath));
-
-if (process.env.SENTRY_DSN) {
-  app.use(Sentry.Handlers.requestHandler());
-}
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -155,7 +154,7 @@ app.get('*', (req, res) => {
 });
 
 if (process.env.SENTRY_DSN) {
-  app.use(Sentry.Handlers.errorHandler());
+  app.use(global.__sentry.expressErrorHandler());
 }
 app.use(errorHandler);
 
