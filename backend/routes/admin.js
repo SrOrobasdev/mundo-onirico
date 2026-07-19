@@ -4,6 +4,7 @@ const Dream = require('../models/Dream');
 const User = require('../models/User');
 const Symbol = require('../models/Symbol');
 const Review = require('../models/Review');
+const AuditLog = require('../models/AuditLog');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 const { sendInterpretationNotification } = require('../services/email');
 
@@ -92,6 +93,15 @@ router.post('/dreams/:id/interpret', [
     dream.interpretedBy = req.user._id;
     await dream.save();
 
+    await AuditLog.create({
+      action: 'interpret',
+      userId: req.user._id,
+      targetId: dream._id,
+      targetModel: 'Dream',
+      details: `Interpretó el sueño "${dream.title}" de ${dream.user?.name || 'desconocido'}`,
+      ip: req.ip
+    });
+
     sendInterpretationNotification(dream.user, dream);
 
     res.json({
@@ -101,6 +111,23 @@ router.post('/dreams/:id/interpret', [
   } catch (error) {
     console.error('Interpret error:', error);
     res.status(500).json({ error: 'Error al enviar interpretación' });
+  }
+});
+
+router.get('/audit', async (req, res) => {
+  try {
+    const { limit = 50, action } = req.query;
+    const filter = {};
+    if (action) filter.action = action;
+
+    const logs = await AuditLog.find(filter)
+      .populate('userId', 'name email')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+
+    res.json({ logs });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener auditoría' });
   }
 });
 

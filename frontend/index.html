@@ -345,6 +345,7 @@
         <div class="flex gap-4 mb-6 border-b border-white/5 pb-3">
             <button onclick="switchAdminTab('dreams')" id="admin-tab-dreams" class="admin-nav-btn text-amber-300 border-b-2 border-amber-400 pb-2 font-bold text-xs uppercase tracking-wider">🔮 Gestión de Sueños</button>
             <button onclick="switchAdminTab('reviews')" id="admin-tab-reviews" class="admin-nav-btn text-slate-400 pb-2 font-bold text-xs uppercase tracking-wider transition hover:text-slate-300">⭐ Moderar Reseñas</button>
+            <button onclick="switchAdminTab('audit')" id="admin-tab-audit" class="admin-nav-btn text-slate-400 pb-2 font-bold text-xs uppercase tracking-wider transition hover:text-slate-300">📋 Auditoría</button>
         </div>
 
         <div id="admin-dreams-panel" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -413,6 +414,13 @@
                     <div id="admin-approved-reviews-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
                 </div>
             </section>
+        </div>
+
+        <div id="admin-audit-panel" class="hidden space-y-4">
+            <div class="glass-card p-6 rounded-2xl border border-white/5">
+                <div class="border-b border-white/5 pb-3 mb-4"><h3 class="font-bold text-sm text-amber-300 uppercase tracking-widest">📋 Registro de Auditoría</h3><p class="text-[9px] text-slate-400 uppercase tracking-wider">Acciones del administrador</p></div>
+                <div id="admin-audit-list" class="space-y-2 max-h-[500px] overflow-y-auto pr-2"></div>
+            </div>
         </div>
     </main>
 
@@ -981,7 +989,8 @@
             document.getElementById(`admin-tab-${tabId}`).className = "admin-nav-btn text-amber-300 border-b-2 border-amber-400 pb-2 font-bold text-xs uppercase tracking-wider";
             document.getElementById('admin-dreams-panel').classList.toggle('hidden', tabId !== 'dreams');
             document.getElementById('admin-reviews-panel').classList.toggle('hidden', tabId !== 'reviews');
-            if (tabId === 'dreams') renderAdminPanel(); else renderAdminReviewsPanel();
+            document.getElementById('admin-audit-panel').classList.toggle('hidden', tabId !== 'audit');
+            if (tabId === 'dreams') renderAdminPanel(); else if (tabId === 'reviews') renderAdminReviewsPanel(); else renderAdminAudit();
         }
 
         async function renderAdminPanel() {
@@ -1086,6 +1095,18 @@
         async function rejectReview(id) {
             try { await api.del(`/admin/reviews/${id}`); showModal('Eliminado', 'Reseña eliminada.'); renderAdminReviewsPanel(); }
             catch(e) { showModal('Error', e.message); }
+        }
+
+        async function renderAdminAudit() {
+            try {
+                const data = await api.get('/admin/audit');
+                const list = document.getElementById('admin-audit-list');
+                if (!data.logs.length) { list.innerHTML = `<p class="text-xs text-slate-400 text-center py-8 italic">Sin registros aún.</p>`; return; }
+                list.innerHTML = data.logs.map(l => {
+                    const labels = { interpret:'🔮 Interpretación', approve_review:'✅ Reseña aprobada', reject_review:'🗑️ Reseña eliminada' };
+                    return `<div class="flex justify-between items-start p-3 rounded-xl bg-white/5 border border-white/5"><div><span class="text-[10px] font-bold ${l.action === 'interpret' ? 'text-amber-300' : 'text-slate-100'}">${labels[l.action]||l.action}</span><p class="text-[9px] text-slate-400 mt-0.5">${esc(l.details)}</p></div><span class="text-[9px] text-slate-500">${new Date(l.createdAt).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div>`;
+                }).join('');
+            } catch(e) { showModal('Error', 'Error al cargar auditoría.'); }
         }
 
         function showModal(title, text) {

@@ -1,5 +1,6 @@
 const express = require('express');
 const Review = require('../models/Review');
+const AuditLog = require('../models/AuditLog');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -38,6 +39,15 @@ router.post('/:id/approve', async (req, res) => {
     review.moderatedAt = new Date();
     await review.save();
 
+    await AuditLog.create({
+      action: 'approve_review',
+      userId: req.user._id,
+      targetId: review._id,
+      targetModel: 'Review',
+      details: `Aprobó reseña de ${review.userName || 'desconocido'} (${review.rating}★)`,
+      ip: req.ip
+    });
+
     res.json({ message: 'Reseña aprobada y publicada', review });
   } catch (error) {
     res.status(500).json({ error: 'Error al aprobar reseña' });
@@ -50,6 +60,16 @@ router.delete('/:id', async (req, res) => {
     if (!review) {
       return res.status(404).json({ error: 'Reseña no encontrada' });
     }
+
+    await AuditLog.create({
+      action: 'reject_review',
+      userId: req.user._id,
+      targetId: review._id,
+      targetModel: 'Review',
+      details: `Eliminó reseña de ${review.userName || 'desconocido'} (${review.rating}★)`,
+      ip: req.ip
+    });
+
     res.json({ message: 'Reseña eliminada' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar reseña' });
