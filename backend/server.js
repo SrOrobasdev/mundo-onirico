@@ -1,4 +1,5 @@
 require('dotenv').config();
+const Sentry = require('@sentry/node');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,6 +8,10 @@ const rateLimit = require('express-rate-limit');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('./models/User');
+
+if (process.env.SENTRY_DSN) {
+  Sentry.init({ dsn: process.env.SENTRY_DSN });
+}
 
 const authRoutes = require('./routes/auth');
 const dreamRoutes = require('./routes/dreams');
@@ -24,7 +29,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdn.tailwindcss.com", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "https://cdn.tailwindcss.com", "https://browser.sentry-cdn.com", "'unsafe-inline'"],
       styleSrc: ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:"],
@@ -41,7 +46,28 @@ app.use(cors({
 app.use(express.json({ limit: '30kb' }));
 
 const frontendPath = path.join(__dirname, '..', 'frontend');
+
+if (process.env.SENTRY_DSN) {
+  const fs = require('fs');
+  let cachedHtml = null;
+  app.use((req, res, next) => {
+    if (req.path === '/' || req.path === '/index.html') {
+      if (!cachedHtml) {
+        cachedHtml = fs.readFileSync(path.join(frontendPath, 'index.html'), 'utf8')
+          .replace('</head>', `<script src="https://browser.sentry-cdn.com/7.120.3/bundle.min.js" crossorigin="anonymous"></script>\n<script>Sentry.init({ dsn: '${process.env.SENTRY_DSN}' });</script>\n</head>`);
+      }
+      res.type('html').send(cachedHtml);
+    } else {
+      next();
+    }
+  });
+}
+
 app.use(express.static(frontendPath));
+
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.Handlers.requestHandler());
+}
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -124,9 +150,13 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) return;
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.Handlers.errorHandler());
+}
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

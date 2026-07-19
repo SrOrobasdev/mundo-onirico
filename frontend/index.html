@@ -62,6 +62,10 @@
             box-shadow: 0 0 15px rgba(224, 169, 109, 0.15);
         }
 
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 6px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        button:disabled { opacity: 0.7; cursor: not-allowed; }
+
         .nav-btn {
             position: relative;
             transition: all 0.3s ease;
@@ -224,7 +228,7 @@
                 <form id="form-login" onsubmit="handleAuthSubmit(event, 'login')" class="space-y-4 text-left">
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_email">Correo Electrónico</label><input type="email" id="login-email" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_email" placeholder="tu@correo.com"></div>
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_password">Contraseña</label><input type="password" id="login-password" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_password" placeholder="••••••••"></div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition-all uppercase" data-i18n="btn_login">Ingresar al Éter ✦</button>
+                    <button type="submit" id="btn-login-submit" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition-all uppercase" data-i18n="btn_login">Ingresar al Éter ✦</button>
                     <div class="relative my-3"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/10"></div></div><div class="relative flex justify-center"><span class="bg-[#130a21] px-3 text-[10px] text-slate-400">O continúa con</span></div></div>
                     <div class="flex items-center gap-2 justify-center w-full bg-white/5 border border-white/10 text-slate-400 font-bold text-xs tracking-wider py-3 rounded-xl cursor-not-allowed opacity-60">
                         <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
@@ -235,7 +239,7 @@
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_name">Tu Nombre Completo</label><input type="text" id="reg-name" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_name" placeholder="Ej: Diana Mendoza"></div>
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_email">Correo Electrónico</label><input type="email" id="reg-email" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_email" placeholder="tu@correo.com"></div>
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_password">Contraseña</label><input type="password" id="reg-password" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_password" placeholder="Crear una contraseña (mín. 6 caracteres)"></div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition-all uppercase" data-i18n="btn_register">Crear mi Cuenta Cósmica ✦</button>
+                    <button type="submit" id="btn-register-submit" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition-all uppercase" data-i18n="btn_register">Crear mi Cuenta Cósmica ✦</button>
                 </form>
             </div>
 
@@ -386,7 +390,7 @@
                             <label class="block text-[10px] uppercase tracking-wider font-bold text-amber-300">Escribir Interpretación Personal</label>
                             <div id="reader-reply-editor-container" class="space-y-3">
                                 <textarea id="admin-reply-textarea" rows="4" placeholder="Escribe aquí tu análisis detallado..." class="w-full p-3 rounded-xl glass-input text-xs resize-none"></textarea>
-                                <button onclick="sendInterpretationFromAdmin()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition shadow-lg uppercase">Enviar Revelación al Portal y Correo ✦</button>
+                                <button onclick="sendInterpretationFromAdmin()" id="btn-send-interpretation" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition shadow-lg uppercase">Enviar Revelación al Portal y Correo ✦</button>
                             </div>
                             <div id="reader-reply-view-container" class="hidden p-3 rounded-xl bg-green-500/5 border border-green-500/20 space-y-2">
                                 <div class="flex justify-between items-center border-b border-white/5 pb-2"><span class="text-[10px] text-green-300 font-bold uppercase tracking-wider">✓ Revelación Enviada</span></div>
@@ -691,6 +695,21 @@
             }
         };
 
+        function setLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            if (loading) {
+                btn.disabled = true;
+                const original = btn.getAttribute('data-original-text') || btn.innerHTML;
+                btn.setAttribute('data-original-text', original);
+                btn.innerHTML = `<span class="spinner"></span> Procesando...`;
+            } else {
+                btn.disabled = false;
+                const original = btn.getAttribute('data-original-text');
+                if (original) btn.innerHTML = original;
+            }
+        }
+
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         let stars = [];
@@ -754,6 +773,20 @@
             event.preventDefault();
             const errEl = document.getElementById('auth-error');
             errEl.classList.add('hidden');
+
+            if (mode === 'register') {
+                const name = document.getElementById('reg-name').value.trim();
+                const email = document.getElementById('reg-email').value.trim();
+                const password = document.getElementById('reg-password').value;
+                if (!name) { errEl.textContent = 'Ingresa tu nombre completo.'; errEl.classList.remove('hidden'); return; }
+                if (!password || password.length < 6) { errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.'; errEl.classList.remove('hidden'); return; }
+            }
+
+            const email = document.getElementById(mode === 'register' ? 'reg-email' : 'login-email').value.trim();
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Ingresa un correo electrónico válido.'; errEl.classList.remove('hidden'); return; }
+
+            const btnId = mode === 'register' ? 'btn-register-submit' : 'btn-login-submit';
+            setLoading(btnId, true);
             try {
                 let data;
                 if (mode === 'register') {
@@ -773,6 +806,7 @@
                 showModal('Acceso Exitoso', 'Bienvenido, ' + data.user.name + '.');
                 updateUserInterface();
             } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+            finally { setLoading(btnId, false); }
         }
 
         function loginWithGoogle() { showModalHTML('Próximamente', '<div class="text-center space-y-3"><p class="text-slate-300">El inicio de sesión con Google estará disponible pronto.</p><p class="text-[10px] text-slate-400">Por ahora, regístrate con tu correo electrónico.</p></div>'); }
@@ -825,6 +859,7 @@
             const title = document.getElementById('dream-title')?.value.trim() || 'Sueño sin título';
             const text = document.getElementById('dream-text')?.value.trim();
             if (!text) return showModal('Campo Vacío', 'Describe tu visión detalladamente.');
+            setLoading('btn-send-dream', true);
             try {
                 await api.post('/dreams', { title, text });
                 showModal('Visión Enviada', 'Tu sueño "' + title + '" ha ingresado a mi fila.');
@@ -836,6 +871,7 @@
                     showModal('Error', err.message);
                 }
             }
+            finally { setLoading('btn-send-dream', false); }
         }
 
         function showVerificationView() {
@@ -850,7 +886,7 @@
                     <button onclick="resendVerificationCode()" class="text-[9px] text-amber-300 hover:text-amber-200 underline font-bold uppercase tracking-widest" data-i18n="verify_resend">Reenviar Código</button>
                     <div class="flex gap-3 justify-center">
                         <button onclick="showNewDreamForm()" class="px-6 py-2.5 border border-white/10 text-slate-300 hover:text-white text-[10px] font-bold uppercase tracking-widest rounded-xl transition">${translations[currentLang]?.verify_continue||'Continuar'}</button>
-                        <button onclick="submitVerificationCode()" class="px-6 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-[10px] tracking-widest rounded-xl transition uppercase">${translations[currentLang]?.verify_btn||'Verificar Cuenta'}</button>
+                        <button onclick="submitVerificationCode()" id="btn-verify-submit" class="px-6 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-[10px] tracking-widest rounded-xl transition uppercase">${translations[currentLang]?.verify_btn||'Verificar Cuenta'}</button>
                     </div>
                     <div class="mt-2 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5">
                         <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">✦ ${translations[currentLang]?.verify_notice_title||'Aviso'}</p>
@@ -870,6 +906,7 @@
                 return;
             }
             errEl.classList.add('hidden');
+            setLoading('btn-verify-submit', true);
             try {
                 const data = await api.post('/auth/verify', { code });
                 currentUser = data.user;
@@ -880,6 +917,7 @@
                 errEl.textContent = err.message;
                 errEl.classList.remove('hidden');
             }
+            finally { setLoading('btn-verify-submit', false); }
         }
 
         async function resendVerificationCode() {
@@ -935,7 +973,7 @@
                     <div class="space-y-1"><label class="block text-[10px] font-bold text-amber-300 uppercase tracking-widest">${translations[currentLang]?.label_dream_title||'Título del sueño'}</label><input type="text" id="dream-title" placeholder="${translations[currentLang]?.placeholder_dream_title||'Ej: El laberinto de espejos dorados'}" class="w-full px-4 py-3 rounded-xl glass-input text-xs"></div>
                     <div class="space-y-1"><label class="block text-[10px] font-bold text-amber-300 uppercase tracking-widest">${translations[currentLang]?.label_dream_desc||'Descripción detallada'}</label><textarea id="dream-text" rows="7" placeholder="${translations[currentLang]?.placeholder_dream_text||'Escribe tu sueño...'}" class="w-full p-4 rounded-xl glass-input text-xs resize-none"></textarea></div>
                 </div>
-                <div class="border-t border-white/5 pt-3 mt-3"><button onclick="submitDreamToInterpreter()" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-xs tracking-wider py-3.5 rounded-xl transition shadow-lg uppercase">${translations[currentLang]?.btn_send_dream||'Enviar Sueño al Intérprete ✦'}</button></div>
+                <div class="border-t border-white/5 pt-3 mt-3"><button onclick="submitDreamToInterpreter()" id="btn-send-dream" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-xs tracking-wider py-3.5 rounded-xl transition shadow-lg uppercase">${translations[currentLang]?.btn_send_dream||'Enviar Sueño al Intérprete ✦'}</button></div>
             `;
         }
 
@@ -953,7 +991,7 @@
                         const myReviews = await api.get('/reviews/my');
                         const alreadyReviewed = myReviews.reviews.some(r => r.dream === d._id);
                         if (!alreadyReviewed) {
-                            rf = `<div class="border-t border-white/10 pt-3 mt-3 space-y-2"><span class="block text-[10px] text-amber-300 font-bold uppercase tracking-wider">${translations[currentLang]?.label_rate||'⭐ ¿Te ayudó? Deja reseña:'}</span><div class="flex gap-2 text-lg justify-center" id="pane-rating-stars">${[1,2,3,4,5].map(i => `<span onclick="setPaneReviewRating(${i})" class="cursor-pointer text-amber-400 transition hover:scale-110">★</span>`).join('')}</div><textarea id="pane-review-text" rows="3" placeholder="${translations[currentLang]?.placeholder_review||'Escribe tu testimonio...'}" class="w-full p-2.5 rounded-xl glass-input text-xs resize-none"></textarea><button onclick="submitUserReview('${d._id}')" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-[10px] tracking-widest py-2 rounded-xl transition-all uppercase">${translations[currentLang]?.btn_send_review||'Enviar Testimonio ✦'}</button></div>`;
+                            rf = `<div class="border-t border-white/10 pt-3 mt-3 space-y-2"><span class="block text-[10px] text-amber-300 font-bold uppercase tracking-wider">${translations[currentLang]?.label_rate||'⭐ ¿Te ayudó? Deja reseña:'}</span><div class="flex gap-2 text-lg justify-center" id="pane-rating-stars">${[1,2,3,4,5].map(i => `<span onclick="setPaneReviewRating(${i})" class="cursor-pointer text-amber-400 transition hover:scale-110">★</span>`).join('')}</div><textarea id="pane-review-text" rows="3" placeholder="${translations[currentLang]?.placeholder_review||'Escribe tu testimonio...'}" class="w-full p-2.5 rounded-xl glass-input text-xs resize-none"></textarea><button onclick="submitUserReview('${d._id}')" id="btn-send-review" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-[10px] tracking-widest py-2 rounded-xl transition-all uppercase">${translations[currentLang]?.btn_send_review||'Enviar Testimonio ✦'}</button></div>`;
                         } else {
                             rf = `<div class="p-3 bg-green-500/5 border border-green-500/10 rounded-xl text-center"><p class="text-[9px] text-green-300 italic">${translations[currentLang]?.review_success_msg||'✓ Ya calificaste esta revelación.'}</p></div>`;
                         }
@@ -973,11 +1011,13 @@
         async function submitUserReview(dreamId) {
             const text = document.getElementById('pane-review-text')?.value.trim();
             if (!text) return showModal('Falta Comentario', 'Escribe un comentario para tu reseña.');
+            setLoading('btn-send-review', true);
             try {
                 await api.post(`/reviews/${dreamId}`, { rating: selectedRating, text });
                 showModal('¡Gracias!', 'Tu testimonio ha sido enviado para moderación.');
                 selectUserDream(dreamId);
             } catch(err) { showModal('Error', err.message); }
+            finally { setLoading('btn-send-review', false); }
         }
 
         async function renderPublicReviews(more) {
@@ -1113,11 +1153,13 @@
         async function sendInterpretationFromAdmin() {
             const text = document.getElementById('admin-reply-textarea').value.trim();
             if (!text) return showModal('Falta Análisis', 'Redacta la interpretación primero.');
+            setLoading('btn-send-interpretation', true);
             try {
                 await api.post(`/admin/dreams/${selectedDreamId}/interpret`, { interpretation: text });
                 showModalHTML('Revelación Enviada ✦', `<div class="space-y-3"><p>Interpretación guardada y correo enviado al usuario.</p><div class="p-3 bg-green-500/10 border border-green-500/20 rounded-xl"><h4 class="text-xs font-bold text-green-300">📧 Correo notificación enviado</h4></div></div>`);
                 renderAdminPanel();
             } catch(e) { showModal('Error', e.message); }
+            finally { setLoading('btn-send-interpretation', false); }
         }
 
         async function renderAdminReviewsPanel() {
