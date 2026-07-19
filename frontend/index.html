@@ -488,7 +488,7 @@
                 footer_disclaimer:"Cada interpretación es privada, confidencial y enfocada en tu autoconocimiento reflexivo.",
                 footer_terms:"Términos y Condiciones",footer_privacy:"Aviso de Privacidad",
                 terms_link:"✦ Términos y Condiciones — Contrato Legal ✦",
-                verify_title:"Verifica tu Cuenta",verify_desc:"Ingresa el código de 6 dígitos que enviamos a tu correo para seguir enviando sueños.",verify_continue:"Continuar",verify_btn:"Verificar Cuenta",verify_notice_title:"Aviso",verify_notice:"Solo se podrá enviar un sueño si no verificas la cuenta.",verify_btn_go:"Verificar Cuenta",verify_resend:"Reenviar Código",
+                verify_title:"Verifica tu Cuenta",verify_desc:"Ingresa el código de 6 dígitos que enviamos a tu correo para seguir enviando sueños.",verify_continue:"Continuar",verify_btn:"Verificar Cuenta",verify_notice_title:"Aviso",verify_notice:"Solo se podrá enviar un sueño si no verificas la cuenta.",verify_btn_go:"Verificar Cuenta",verify_resend:"Reenviar Código",load_more:"+ Cargar más",
                 exit_btn:"Salir"
             },
             en: {
@@ -526,7 +526,7 @@
                 footer_disclaimer:"Each interpretation is private, confidential, and focused on reflective self-knowledge.",
                 footer_terms:"Terms & Conditions",footer_privacy:"Privacy Policy",
                 terms_link:"✦ Terms & Conditions — Legal Contract ✦",
-                verify_title:"Verify your Account",verify_desc:"Enter the 6-digit code sent to your email to keep sending dreams.",verify_continue:"Continue",verify_btn:"Verify Account",verify_notice_title:"Notice",verify_notice:"Only one dream can be sent if you do not verify your account.",verify_btn_go:"Verify Account",verify_resend:"Resend Code",
+                verify_title:"Verify your Account",verify_desc:"Enter the 6-digit code sent to your email to keep sending dreams.",verify_continue:"Continue",verify_btn:"Verify Account",verify_notice_title:"Notice",verify_notice:"Only one dream can be sent if you do not verify your account.",verify_btn_go:"Verify Account",verify_resend:"Resend Code",load_more:"+ Load more",
                 exit_btn:"Exit"
             },
             it: {
@@ -561,7 +561,7 @@
                 footer_copyright:"© 2026 Mondo Onirico",footer_disclaimer:"Interpretazioni private e riservate.",
                 footer_terms:"Termini e Condizioni",footer_privacy:"Informativa sulla Privacy",
                 terms_link:"✦ Termini e Condizioni — Contratto Legale ✦",
-                verify_title:"Verifica il tuo Account",verify_desc:"Inserisci il codice a 6 cifre inviato alla tua email.",verify_continue:"Continua",verify_btn:"Verifica Account",verify_notice_title:"Avviso",verify_notice:"Solo un sogno può essere inviato senza verifica.",verify_btn_go:"Verifica Account",verify_resend:"Invia di Nuovo",
+                verify_title:"Verifica il tuo Account",verify_desc:"Inserisci il codice a 6 cifre inviato alla tua email.",verify_continue:"Continua",verify_btn:"Verifica Account",verify_notice_title:"Avviso",verify_notice:"Solo un sogno può essere inviato senza verifica.",verify_btn_go:"Verifica Account",verify_resend:"Invia di Nuovo",load_more:"+ Carica altri",
                 exit_btn:"Esci"
             },
             pt: {
@@ -596,7 +596,7 @@
                 footer_copyright:"© 2026 Mundo Onírico",footer_disclaimer:"Interpretações privadas e confidenciais.",
                 footer_terms:"Termos e Condições",footer_privacy:"Política de Privacidade",
                 terms_link:"✦ Termos e Condições — Contrato Legal ✦",
-                verify_title:"Verifique sua Conta",verify_desc:"Insira o código de 6 dígitos enviado ao seu email.",verify_continue:"Continuar",verify_btn:"Verificar Conta",verify_notice_title:"Aviso",verify_notice:"Apenas um sonho pode ser enviado sem verificação.",verify_btn_go:"Verificar Conta",verify_resend:"Reenviar Código",
+                verify_title:"Verifique sua Conta",verify_desc:"Insira o código de 6 dígitos enviado ao seu email.",verify_continue:"Continuar",verify_btn:"Verificar Conta",verify_notice_title:"Aviso",verify_notice:"Apenas um sonho pode ser enviado sem verificação.",verify_btn_go:"Verificar Conta",verify_resend:"Reenviar Código",load_more:"+ Carregar mais",
                 exit_btn:"Sair"
             },
             fr: {
@@ -631,7 +631,7 @@
                 footer_copyright:"© 2026 Monde Onirique",footer_disclaimer:"Interpretations privées et confidentielles.",
                 footer_terms:"Termes et Conditions",footer_privacy:"Politique de Confidentialité",
                 terms_link:"✦ Termes et Conditions — Contrat Légal ✦",
-                verify_title:"Vérifiez votre Compte",verify_desc:"Entrez le code à 6 chiffres envoyé à votre email.",verify_continue:"Continuer",verify_btn:"Vérifier le Compte",verify_notice_title:"Avis",verify_notice:"Un seul rêve peut être envoyé sans vérification.",verify_btn_go:"Vérifier le Compte",verify_resend:"Renvoyer le Code",
+                verify_title:"Vérifiez votre Compte",verify_desc:"Entrez le code à 6 chiffres envoyé à votre email.",verify_continue:"Continuer",verify_btn:"Vérifier le Compte",verify_notice_title:"Avis",verify_notice:"Un seul rêve peut être envoyé sans vérification.",verify_btn_go:"Vérifier le Compte",verify_resend:"Renvoyer le Code",load_more:"+ Charger plus",
                 exit_btn:"Sortir"
             }
         };
@@ -889,14 +889,15 @@
             } catch (err) { showModal('Error', err.message); }
         }
 
-        async function renderUserMailbox() {
+        async function renderUserMailbox(more) {
             const list = document.getElementById('user-mailbox-list');
             const count = document.getElementById('user-mailbox-count');
-            list.innerHTML = '';
+            const page = more ? (parseInt(list.dataset.page || 1) + 1) : 1;
+            if (!more) { list.innerHTML = ''; list.dataset.items = '0'; }
             try {
-                const data = await api.get('/dreams');
-                count.textContent = data.dreams.length;
-                if (data.dreams.length === 0) { list.innerHTML = `<div class="text-center py-10 text-purple-300 italic text-xs">${translations[currentLang]?.empty_mailbox||'Aún no has enviado ningún sueño.'}</div>`; return; }
+                const data = await api.get(`/dreams?page=${page}&limit=20`);
+                count.textContent = data.total;
+                if (data.total === 0) { list.innerHTML = `<div class="text-center py-10 text-purple-300 italic text-xs">${translations[currentLang]?.empty_mailbox||'Aún no has enviado ningún sueño.'}</div>`; return; }
                 data.dreams.forEach(d => {
                     const sel = selectedUserDreamId === d._id;
                     const item = document.createElement('div');
@@ -907,7 +908,18 @@
                     item.innerHTML = `<div class="flex justify-between items-start gap-2"><h4 class="font-bold text-xs text-amber-200 truncate max-w-[120px]">${esc(d.title)}</h4><span class="text-[9px] text-slate-400">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><p class="text-[10px] text-slate-400 truncate">"${esc(d.text)}"</p><div class="flex justify-between items-center mt-1 pt-1 border-t border-white/5"><span class="text-[9px] uppercase tracking-wider font-bold ${sc}">${sl}</span></div>`;
                     list.appendChild(item);
                 });
-            } catch (e) { list.innerHTML = `<div class="text-center py-10 text-red-400 italic text-xs">Error</div>`; }
+                list.dataset.page = page;
+                const moreBtn = list.querySelector('.load-more-btn');
+                if (data.hasMore) {
+                    if (!moreBtn) {
+                        const btn = document.createElement('button');
+                        btn.className = 'load-more-btn w-full text-center text-[10px] text-amber-300 hover:text-amber-200 font-bold uppercase tracking-widest py-3 transition';
+                        btn.textContent = translations[currentLang]?.load_more||'+ Cargar más';
+                        btn.onclick = () => renderUserMailbox(true);
+                        list.appendChild(btn);
+                    }
+                } else if (moreBtn) { moreBtn.remove(); }
+            } catch (e) { if (!more) list.innerHTML = `<div class="text-center py-10 text-red-400 italic text-xs">Error</div>`; }
         }
 
         function showNewDreamForm() {
@@ -968,12 +980,13 @@
             } catch(err) { showModal('Error', err.message); }
         }
 
-        async function renderPublicReviews() {
+        async function renderPublicReviews(more) {
             const grid = document.getElementById('public-reviews-grid');
-            grid.innerHTML = '';
+            const page = more ? (parseInt(grid.dataset.page || 1) + 1) : 1;
+            if (!more) grid.innerHTML = '';
             try {
-                const data = await api.get('/reviews/public');
-                if (data.reviews.length === 0) { grid.innerHTML = `<div class="col-span-3 text-center py-10 text-purple-300 italic text-xs">${translations[currentLang]?.reviews_empty||'Aún no hay testimonios publicados.'}</div>`; return; }
+                const data = await api.get(`/reviews/public?page=${page}&limit=12`);
+                if (data.total === 0 && page === 1) { grid.innerHTML = `<div class="col-span-3 text-center py-10 text-purple-300 italic text-xs">${translations[currentLang]?.reviews_empty||'Aún no hay testimonios publicados.'}</div>`; return; }
                 data.reviews.forEach(r => {
                     const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
                     const card = document.createElement('div');
@@ -981,7 +994,18 @@
                     card.innerHTML = `<div class="space-y-2"><div class="text-amber-400 text-sm font-bold">${stars}</div><p class="text-xs text-slate-300 italic leading-relaxed">"${esc(r.text)}"</p></div><div class="border-t border-white/5 pt-3"><h5 class="font-bold text-xs text-amber-200">${esc(r.user?.name || r.userName)}</h5><p class="text-[9px] text-slate-400 font-semibold">${new Date(r.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</p></div>`;
                     grid.appendChild(card);
                 });
-            } catch(e) { grid.innerHTML = `<div class="col-span-3 text-center py-10 text-red-400 italic text-xs">Error al cargar reseñas.</div>`; }
+                grid.dataset.page = page;
+                const moreBtn = grid.querySelector('.load-more-btn');
+                if (data.hasMore) {
+                    if (!moreBtn) {
+                        const btn = document.createElement('button');
+                        btn.className = 'load-more-btn col-span-3 text-center text-xs text-amber-300 hover:text-amber-200 font-bold uppercase tracking-widest py-4 transition';
+                        btn.textContent = '+ Cargar más';
+                        btn.onclick = () => renderPublicReviews(true);
+                        grid.appendChild(btn);
+                    }
+                } else if (moreBtn) { moreBtn.remove(); }
+            } catch(e) { if (!more) grid.innerHTML = `<div class="col-span-3 text-center py-10 text-red-400 italic text-xs">Error al cargar reseñas.</div>`; }
         }
 
         function switchAdminTab(tabId) {
@@ -995,35 +1019,71 @@
 
         async function renderAdminPanel() {
             try {
-                const [dash, usersData, dreamsData] = await Promise.all([
-                    api.get('/admin/dashboard'), api.get('/admin/users'), api.get('/admin/dreams')
+                const [dash, usersData] = await Promise.all([
+                    api.get('/admin/dashboard'), api.get('/admin/users?page=1&limit=50')
                 ]);
                 document.getElementById('metric-accounts').textContent = dash.stats.totalUsers;
                 document.getElementById('metric-pending').textContent = dash.stats.pendingDreams;
                 document.getElementById('metric-completed').textContent = dash.stats.interpretedDreams;
                 document.getElementById('metric-pending-reviews').textContent = dash.stats.pendingReviews || 0;
 
+                loadAdminDreams(1);
                 const al = document.getElementById('admin-accounts-list');
-                if (usersData.users.length === 0) { al.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No hay cuentas</p>`; }
-                else { al.innerHTML = usersData.users.map(u => `<div class="p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition"><div><h4 class="text-xs font-bold text-slate-200">${esc(u.name)}</h4><p class="text-[9px] text-slate-400">${esc(u.email)}</p></div><span class="text-[10px] bg-purple-500/10 text-purple-300 font-semibold px-2 py-0.5 rounded-full border border-purple-500/20">${u.dreamCount} sueños</span></div>`).join(''); }
-
-                renderAdminMailbox(dreamsData.dreams);
+                if (usersData.users.length === 0) { al.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No hay cuentas</p>`; return; }
+                al.innerHTML = usersData.users.map(u => `<div class="p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition"><div><h4 class="text-xs font-bold text-slate-200">${esc(u.name)}</h4><p class="text-[9px] text-slate-400">${esc(u.email)}</p></div><span class="text-[10px] bg-purple-500/10 text-purple-300 font-semibold px-2 py-0.5 rounded-full border border-purple-500/20">${u.dreamCount} sueños</span></div>`).join('');
+                al.dataset.page = 1;
+                const moreUsersBtn = al.querySelector('.load-more-btn');
+                if (usersData.hasMore) {
+                    if (!moreUsersBtn) {
+                        const btn = document.createElement('button');
+                        btn.className = 'load-more-btn w-full text-center text-[10px] text-amber-300 hover:text-amber-200 font-bold uppercase tracking-widest py-3 transition';
+                        btn.textContent = '+ Cargar más';
+                        btn.onclick = async () => {
+                            const p = parseInt(al.dataset.page || 1) + 1;
+                            const d = await api.get(`/admin/users?page=${p}&limit=50`);
+                            d.users.forEach(u => {
+                                const div = document.createElement('div');
+                                div.className = 'p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition';
+                                div.innerHTML = `<div><h4 class="text-xs font-bold text-slate-200">${esc(u.name)}</h4><p class="text-[9px] text-slate-400">${esc(u.email)}</p></div><span class="text-[10px] bg-purple-500/10 text-purple-300 font-semibold px-2 py-0.5 rounded-full border border-purple-500/20">${u.dreamCount} sueños</span></div>`;
+                                al.insertBefore(div, al.querySelector('.load-more-btn'));
+                            });
+                            al.dataset.page = p;
+                            if (!d.hasMore) { al.querySelector('.load-more-btn')?.remove(); }
+                        };
+                        al.appendChild(btn);
+                    }
+                } else if (moreUsersBtn) { moreUsersBtn.remove(); }
             } catch(e) { showModal('Error', 'Error al cargar panel admin.'); }
         }
 
-        function renderAdminMailbox(dreams) {
+        async function loadAdminDreams(page) {
             const list = document.getElementById('admin-mailbox-list');
             const cnt = document.getElementById('admin-mailbox-count');
-            list.innerHTML = ''; cnt.textContent = dreams.length;
-            if (dreams.length === 0) { list.innerHTML = `<p class="text-xs text-slate-500 text-center py-8">Buzón vacío</p>`; return; }
-            dreams.forEach(d => {
-                const sel = selectedDreamId === d._id;
-                const item = document.createElement('div');
-                item.className = `p-3 rounded-xl border cursor-pointer transition text-left flex flex-col gap-1 ${sel ? 'bg-amber-500/10 border-amber-500/40' : 'bg-white/5 border-white/5 hover:bg-white/10'}`;
-                item.onclick = () => selectDreamForReading(d._id);
-                item.innerHTML = `<div class="flex justify-between items-start"><span class="text-[10px] font-bold text-amber-200 truncate max-w-[120px]">${esc(d.user?.name||'Usuario')}</span><span class="text-[9px] text-slate-400">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><h4 class="text-xs font-semibold text-slate-200 truncate">${esc(d.title)}</h4><p class="text-[10px] text-slate-400 truncate">"${esc(d.text)}"</p><div class="flex justify-between items-center mt-1 pt-1 border-t border-white/5"><span class="text-[9px] uppercase tracking-wider font-bold ${d.status==='Pendiente'?'text-amber-400':'text-green-400'}">${d.status==='Pendiente'?'● Pendiente':'✓ Respondido'}</span></div>`;
-                list.appendChild(item);
-            });
+            if (page === 1) list.innerHTML = '';
+            try {
+                const data = await api.get(`/admin/dreams?page=${page}&limit=20`);
+                cnt.textContent = data.total;
+                if (data.total === 0 && page === 1) { list.innerHTML = `<p class="text-xs text-slate-500 text-center py-8">Buzón vacío</p>`; return; }
+                data.dreams.forEach(d => {
+                    const sel = selectedDreamId === d._id;
+                    const item = document.createElement('div');
+                    item.className = `p-3 rounded-xl border cursor-pointer transition text-left flex flex-col gap-1 ${sel ? 'bg-amber-500/10 border-amber-500/40' : 'bg-white/5 border-white/5 hover:bg-white/10'}`;
+                    item.onclick = () => selectDreamForReading(d._id);
+                    item.innerHTML = `<div class="flex justify-between items-start"><span class="text-[10px] font-bold text-amber-200 truncate max-w-[120px]">${esc(d.user?.name||'Usuario')}</span><span class="text-[9px] text-slate-400">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><h4 class="text-xs font-semibold text-slate-200 truncate">${esc(d.title)}</h4><p class="text-[10px] text-slate-400 truncate">"${esc(d.text)}"</p><div class="flex justify-between items-center mt-1 pt-1 border-t border-white/5"><span class="text-[9px] uppercase tracking-wider font-bold ${d.status==='Pendiente'?'text-amber-400':'text-green-400'}">${d.status==='Pendiente'?'● Pendiente':'✓ Respondido'}</span></div>`;
+                    list.appendChild(item);
+                });
+                list.dataset.page = page;
+                const moreBtn = list.querySelector('.load-more-btn');
+                if (data.hasMore) {
+                    if (!moreBtn) {
+                        const btn = document.createElement('button');
+                        btn.className = 'load-more-btn w-full text-center text-[10px] text-amber-300 hover:text-amber-200 font-bold uppercase tracking-widest py-3 transition';
+                        btn.textContent = '+ Cargar más';
+                        btn.onclick = () => loadAdminDreams(page + 1);
+                        list.appendChild(btn);
+                    }
+                } else if (moreBtn) { moreBtn.remove(); }
+            } catch(e) { /* ignore */ }
         }
 
         async function selectDreamForReading(id) {
@@ -1097,15 +1157,31 @@
             catch(e) { showModal('Error', e.message); }
         }
 
-        async function renderAdminAudit() {
+        async function renderAdminAudit(more) {
             try {
-                const data = await api.get('/admin/audit');
                 const list = document.getElementById('admin-audit-list');
-                if (!data.logs.length) { list.innerHTML = `<p class="text-xs text-slate-400 text-center py-8 italic">Sin registros aún.</p>`; return; }
-                list.innerHTML = data.logs.map(l => {
+                const page = more ? (parseInt(list.dataset.page || 1) + 1) : 1;
+                if (!more) list.innerHTML = '';
+                const data = await api.get(`/admin/audit?page=${page}&limit=50`);
+                if (data.total === 0 && page === 1) { list.innerHTML = `<p class="text-xs text-slate-400 text-center py-8 italic">Sin registros aún.</p>`; return; }
+                data.logs.forEach(l => {
                     const labels = { interpret:'🔮 Interpretación', approve_review:'✅ Reseña aprobada', reject_review:'🗑️ Reseña eliminada' };
-                    return `<div class="flex justify-between items-start p-3 rounded-xl bg-white/5 border border-white/5"><div><span class="text-[10px] font-bold ${l.action === 'interpret' ? 'text-amber-300' : 'text-slate-100'}">${labels[l.action]||l.action}</span><p class="text-[9px] text-slate-400 mt-0.5">${esc(l.details)}</p></div><span class="text-[9px] text-slate-500">${new Date(l.createdAt).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div>`;
-                }).join('');
+                    const item = document.createElement('div');
+                    item.className = 'flex justify-between items-start p-3 rounded-xl bg-white/5 border border-white/5';
+                    item.innerHTML = `<div><span class="text-[10px] font-bold ${l.action === 'interpret' ? 'text-amber-300' : 'text-slate-100'}">${labels[l.action]||l.action}</span><p class="text-[9px] text-slate-400 mt-0.5">${esc(l.details)}</p></div><span class="text-[9px] text-slate-500">${new Date(l.createdAt).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div>`;
+                    list.appendChild(item);
+                });
+                list.dataset.page = page;
+                const moreBtn = list.querySelector('.load-more-btn');
+                if (data.hasMore) {
+                    if (!moreBtn) {
+                        const btn = document.createElement('button');
+                        btn.className = 'load-more-btn w-full text-center text-[10px] text-amber-300 hover:text-amber-200 font-bold uppercase tracking-widest py-3 transition';
+                        btn.textContent = '+ Cargar más';
+                        btn.onclick = () => renderAdminAudit(true);
+                        list.appendChild(btn);
+                    }
+                } else if (moreBtn) { moreBtn.remove(); }
             } catch(e) { showModal('Error', 'Error al cargar auditoría.'); }
         }
 

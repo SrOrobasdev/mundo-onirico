@@ -8,10 +8,14 @@ const router = express.Router();
 
 router.get('/public', async (req, res) => {
   try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+    const total = await Review.countDocuments({ status: 'Aprobada' });
     const reviews = await Review.find({ status: 'Aprobada' })
       .populate('user', 'name')
-      .sort({ createdAt: -1 });
-    res.json({ reviews });
+      .sort({ createdAt: -1 }).skip(skip).limit(limit);
+    res.json({ reviews, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener reseñas' });
   }

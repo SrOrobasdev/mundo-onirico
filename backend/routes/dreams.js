@@ -65,9 +65,13 @@ router.post('/', authenticate, limitOneDreamPer3h, requireVerifiedForSecondDream
 
 router.get('/', authenticate, async (req, res) => {
   try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+    const total = await Dream.countDocuments({ user: req.user._id });
     const dreams = await Dream.find({ user: req.user._id })
-      .sort({ createdAt: -1 });
-    res.json({ dreams });
+      .sort({ createdAt: -1 }).skip(skip).limit(limit);
+    res.json({ dreams, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener sueños' });
   }

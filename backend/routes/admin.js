@@ -30,14 +30,18 @@ router.get('/dashboard', async (req, res) => {
 
 router.get('/users', async (req, res) => {
   try {
-    const users = await User.find({ role: 'user' }).sort({ createdAt: -1 });
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+    const total = await User.countDocuments({ role: 'user' });
+    const users = await User.find({ role: 'user' }).sort({ createdAt: -1 }).skip(skip).limit(limit);
     const usersWithDreamCount = await Promise.all(
       users.map(async (user) => {
         const dreamCount = await Dream.countDocuments({ user: user._id });
         return { ...user.toJSON(), dreamCount };
       })
     );
-    res.json({ users: usersWithDreamCount });
+    res.json({ users: usersWithDreamCount, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener usuarios' });
   }
@@ -49,10 +53,14 @@ router.get('/dreams', async (req, res) => {
     const filter = {};
     if (status) filter.status = status;
 
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+    const total = await Dream.countDocuments(filter);
     const dreams = await Dream.find(filter)
       .populate('user', 'name email')
-      .sort({ createdAt: -1 });
-    res.json({ dreams });
+      .sort({ createdAt: -1 }).skip(skip).limit(limit);
+    res.json({ dreams, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener sueños' });
   }
@@ -116,16 +124,18 @@ router.post('/dreams/:id/interpret', [
 
 router.get('/audit', async (req, res) => {
   try {
-    const { limit = 50, action } = req.query;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
+    const skip = (page - 1) * limit;
     const filter = {};
-    if (action) filter.action = action;
+    if (req.query.action) filter.action = req.query.action;
 
+    const total = await AuditLog.countDocuments(filter);
     const logs = await AuditLog.find(filter)
       .populate('userId', 'name email')
-      .sort({ createdAt: -1 })
-      .limit(parseInt(limit));
+      .sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-    res.json({ logs });
+    res.json({ logs, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener auditoría' });
   }

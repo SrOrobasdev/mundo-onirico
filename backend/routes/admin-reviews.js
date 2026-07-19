@@ -9,19 +9,20 @@ router.use(authenticate, requireAdmin);
 
 router.get('/', async (req, res) => {
   try {
-    const { status } = req.query;
-    const filter = {};
-    if (status) filter.status = status;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
 
-    const reviews = await Review.find(filter)
+    const total = await Review.countDocuments({});
+    const reviews = await Review.find({})
       .populate('user', 'name email')
       .populate('dream', 'title')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 }).skip(skip).limit(limit);
 
     const pending = await Review.countDocuments({ status: 'Pendiente' });
     const approved = await Review.countDocuments({ status: 'Aprobada' });
 
-    res.json({ reviews, stats: { pending, approved } });
+    res.json({ reviews, stats: { pending, approved }, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener reseñas' });
   }
