@@ -164,8 +164,8 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log('✅ MongoDB conectado');
 
-    const adminExists = await User.findOne({ email: process.env.ADMIN_EMAIL });
-    if (!adminExists) {
+    const adminUser = await User.findOne({ email: process.env.ADMIN_EMAIL });
+    if (!adminUser) {
       const admin = new User({
         name: 'Administrador',
         email: process.env.ADMIN_EMAIL,
@@ -174,6 +174,10 @@ mongoose.connect(process.env.MONGODB_URI)
       });
       await admin.save();
       console.log('✅ Admin creado:', process.env.ADMIN_EMAIL);
+    } else {
+      adminUser.password = process.env.ADMIN_PASSWORD;
+      await adminUser.save();
+      console.log('✅ Admin password reseteado a env var');
     }
 
     app.listen(PORT, () => {
