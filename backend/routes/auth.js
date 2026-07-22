@@ -43,13 +43,8 @@ router.post('/register', [
 
   const code = user.generateVerificationCode();
   await user.save();
-
-  try {
-    await sendVerificationCode(user, code);
-    await sendWelcomeEmail(user);
-  } catch (emailErr) {
-    console.error('Error enviando email (registro):', emailErr.message);
-  }
+  sendVerificationCode(user, code);
+  sendWelcomeEmail(user);
 
   const token = generateToken(user);
 
@@ -145,11 +140,7 @@ router.post('/resend-code', authenticate, asyncHandler(async (req, res) => {
 
   const code = req.user.generateVerificationCode();
   await req.user.save();
-  try {
-    await sendVerificationCode(req.user, code);
-  } catch (emailErr) {
-    console.error('Error reenviando código:', emailErr.message);
-  }
+  sendVerificationCode(req.user, code);
 
   res.json({ message: 'Código reenviado a tu email.' });
 }));

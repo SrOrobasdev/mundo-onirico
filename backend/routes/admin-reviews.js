@@ -21,17 +21,10 @@ router.get('/', asyncHandler(async (req, res) => {
     .populate('dream', 'title')
     .sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-  const reviewsWithUser = reviews.map(r => {
-    const obj = r.toObject();
-    obj.userName = obj.user?.name || 'desconocido';
-    obj.userEmail = obj.user?.email || '';
-    return obj;
-  });
-
   const pending = await Review.countDocuments({ status: 'Pendiente' });
   const approved = await Review.countDocuments({ status: 'Aprobada' });
 
-  res.json({ reviews: reviewsWithUser, stats: { pending, approved }, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
+  res.json({ reviews, stats: { pending, approved }, total, page, pages: Math.ceil(total / limit), hasMore: page * limit < total });
 }));
 
 router.post('/:id/approve', asyncHandler(async (req, res) => {
@@ -50,7 +43,7 @@ router.post('/:id/approve', asyncHandler(async (req, res) => {
     userId: req.user._id,
     targetId: review._id,
     targetModel: 'Review',
-    details: `Aprobó reseña`,
+    details: `Aprobó reseña de ${review.userName || 'desconocido'} (${review.rating}★)`,
     ip: req.ip
   });
 
@@ -68,7 +61,7 @@ router.delete('/:id', asyncHandler(async (req, res) => {
     userId: req.user._id,
     targetId: review._id,
     targetModel: 'Review',
-    details: `Eliminó reseña`,
+    details: `Eliminó reseña de ${review.userName || 'desconocido'} (${review.rating}★)`,
     ip: req.ip
   });
 

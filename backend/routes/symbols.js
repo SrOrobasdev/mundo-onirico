@@ -54,7 +54,7 @@ router.put('/:id', authenticate, requireAdmin, [
   if (req.body.description) updates.description = req.body.description;
   if (req.body.category) updates.category = req.body.category;
 
-  const symbol = await Symbol.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
+  const symbol = await Symbol.findByIdAndUpdate(req.params.id, updates, { new: true });
   if (!symbol) {
     throw new AppError('Símbolo no encontrado', 404);
   }
