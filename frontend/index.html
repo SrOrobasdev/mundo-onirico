@@ -737,7 +737,7 @@
             const a = document.getElementById(`lang-btn-${lang}`);
             if (a) a.className = "lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 transition-all duration-300 shadow-md shadow-emerald-950/20";
             renderPublicReviews();
-            if (currentUser && !currentUser.role === 'admin') { renderUserMailbox(); if (selectedUserDreamId) selectUserDream(selectedUserDreamId); else showNewDreamForm(); }
+            if (currentUser && currentUser.role !== 'admin') { renderUserMailbox(); if (selectedUserDreamId) selectUserDream(selectedUserDreamId); else showNewDreamForm(); }
         }
 
         function switchTab(tabId) {

@@ -40,9 +40,6 @@ const reviewSchema = new mongoose.Schema({
   timestamps: true
 });
 
-reviewSchema.methods.toJSON = function() {
-  const obj = this.toObject();
-  return obj;
-};
+reviewSchema.index({ user: 1, dream: 1 }, { unique: true });
 
 module.exports = mongoose.model('Review', reviewSchema);

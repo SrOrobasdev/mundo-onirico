@@ -20,7 +20,7 @@ const limitOneDreamPer3h = async (req, res, next) => {
       }
     }
     next();
-  } catch { next(); }
+  } catch (err) { console.error('Error en limitOneDreamPer3h:', err); next(err); }
 };
 
 const requireVerifiedForSecondDream = async (req, res, next) => {
@@ -32,7 +32,7 @@ const requireVerifiedForSecondDream = async (req, res, next) => {
       }
     }
     next();
-  } catch { next(); }
+  } catch (err) { console.error('Error en requireVerifiedForSecondDream:', err); next(err); }
 };
 
 router.post('/', authenticate, limitOneDreamPer3h, requireVerifiedForSecondDream, [

@@ -37,10 +37,14 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:"],
       connectSrc: ["'self'"],
-      frameAncestors: ["'none'"]
+      frameAncestors: ["'none'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"]
     }
   }
 }));
+app.set('trust proxy', 1);
 app.use(helmet.hsts({ maxAge: 31536000, includeSubDomains: true }));
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'https://mundo-onirico.onrender.com',
@@ -149,7 +153,9 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/')) return;
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Ruta no encontrada' });
+  }
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 

@@ -77,6 +77,9 @@ userSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;
   delete obj.verificationCode;
+  delete obj.failedLoginAttempts;
+  delete obj.lockUntil;
+  delete obj.verificationCodeExpiresAt;
   return obj;
 };
 
