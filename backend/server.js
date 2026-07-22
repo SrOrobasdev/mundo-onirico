@@ -170,11 +170,8 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log('✅ MongoDB conectado');
 
-    let adminUser = await User.findOne({ email: process.env.ADMIN_EMAIL });
-    if (!adminUser) {
-      adminUser = await User.findOne({ role: 'admin' });
-    }
-    if (!adminUser) {
+    const adminExists = await User.findOne({ email: process.env.ADMIN_EMAIL });
+    if (!adminExists) {
       const admin = new User({
         name: 'Administrador',
         email: process.env.ADMIN_EMAIL,
@@ -183,10 +180,6 @@ mongoose.connect(process.env.MONGODB_URI)
       });
       await admin.save();
       console.log('✅ Admin creado:', process.env.ADMIN_EMAIL);
-    } else if (!adminUser.email || adminUser.email !== process.env.ADMIN_EMAIL) {
-      adminUser.email = process.env.ADMIN_EMAIL;
-      await adminUser.save();
-      console.log('✅ Admin actualizado:', process.env.ADMIN_EMAIL);
     }
 
     app.listen(PORT, () => {
