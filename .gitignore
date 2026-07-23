@@ -7,3 +7,6 @@ Terminos y condicciones/
 backup-*/
 backups/
 respaldos/
+
+*.lnk
+backup-auto.ps1
