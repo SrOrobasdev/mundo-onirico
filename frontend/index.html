@@ -387,14 +387,12 @@
                             <div class="space-y-2"><h3 id="reader-dream-title" class="text-sm font-bold text-amber-200 font-serif"></h3><div class="p-4 rounded-xl bg-white/5 border border-white/5 text-xs text-slate-300 leading-relaxed italic whitespace-pre-line" id="reader-dream-text"></div></div>
                         </div>
                         <div class="border-t border-white/5 pt-3 mt-3 space-y-3">
-                            <label class="block text-[10px] uppercase tracking-wider font-bold text-amber-300">Escribir Interpretación Personal</label>
-                            <div id="reader-reply-editor-container" class="space-y-3">
-                                <textarea id="admin-reply-textarea" rows="4" placeholder="Escribe aquí tu análisis detallado..." class="w-full p-3 rounded-xl glass-input text-xs resize-none"></textarea>
-                                <button onclick="sendInterpretationFromAdmin()" id="btn-send-interpretation" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition shadow-lg uppercase">Enviar Revelación al Portal y Correo ✦</button>
-                            </div>
-                            <div id="reader-reply-view-container" class="hidden p-3 rounded-xl bg-green-500/5 border border-green-500/20 space-y-2">
-                                <div class="flex justify-between items-center border-b border-white/5 pb-2"><span class="text-[10px] text-green-300 font-bold uppercase tracking-wider">✓ Revelación Enviada</span></div>
-                                <p id="reader-reply-saved-text" class="text-xs text-slate-300 italic whitespace-pre-line leading-relaxed"></p>
+                            <label class="block text-[10px] uppercase tracking-wider font-bold text-amber-300">Chat con el soñador</label>
+                            <div id="chat-msgs-admin" class="max-h-[250px] overflow-y-auto p-2 rounded-xl bg-black/30 space-y-1 text-xs"></div>
+                            <div class="flex gap-2 items-center">
+                                <input type="text" id="chat-input-admin" placeholder="Escribe la interpretación o mensaje..." class="flex-1 px-3 py-2 rounded-xl glass-input text-xs">
+                                <label class="cursor-pointer text-amber-400 hover:text-amber-300 text-lg" title="Adjuntar archivo">📎<input type="file" id="chat-file-admin" class="hidden" accept=".mp3,.wav,.ogg,.webm,.m4a,.pdf,.jpg,.png,.zip"></label>
+                                <button onclick="sendAdminChatMessage()" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-[10px] px-4 py-2 rounded-xl transition uppercase tracking-wider">✦</button>
                             </div>
                         </div>
                     </div>
@@ -646,6 +644,8 @@
         let selectedUserDreamId = null;
         let selectedRating = 5;
         let currentToken = localStorage.getItem('onirico_token');
+        let chatPollTimer = null;
+        let activeChatDreamId = null;
 
         if (!currentToken && window.location.hash) {
             const match = window.location.hash.match(/token=([^&]+)/);
@@ -849,6 +849,7 @@
         }
 
         function logout() {
+            if (chatPollTimer) clearInterval(chatPollTimer);
             currentToken = null; currentUser = null; selectedDreamId = null; selectedUserDreamId = null;
             localStorage.removeItem('onirico_token');
             updateUserInterface();
@@ -961,6 +962,7 @@
         }
 
         function showNewDreamForm() {
+            if (chatPollTimer) clearInterval(chatPollTimer);
             selectedUserDreamId = null; renderUserMailbox();
             const pane = document.getElementById('user-active-reader');
             let bannerHtml = '';
@@ -978,6 +980,7 @@
         }
 
         async function selectUserDream(id) {
+            if (chatPollTimer) clearInterval(chatPollTimer);
             selectedUserDreamId = id; renderUserMailbox();
             try {
                 const d = (await api.get('/dreams/' + id)).dream;
@@ -998,8 +1001,9 @@
                     } catch(e) { rf = ''; }
                     ic = `<div class="space-y-3"><span class="block text-[10px] text-green-400 font-bold uppercase tracking-wider">${translations[currentLang]?.label_interpretation||'✓ Interpretación:'}</span><div class="p-4 rounded-xl bg-green-500/5 border border-green-500/10 text-xs text-slate-200 leading-relaxed font-medium whitespace-pre-line italic">${esc(d.interpretation)}</div>${rf}</div>`;
                 }
-                pane.innerHTML = `<div class="space-y-4 overflow-y-auto max-h-[480px] pr-2 flex-grow"><div class="p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center"><div><p class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">${translations[currentLang]?.label_sent_detail||'Tu Detalle'}</p><h4 class="text-[11px] font-semibold text-slate-300">${translations[currentLang]?.label_vision_history||'Historial'}</h4></div><span class="text-[9px] text-slate-400 font-semibold uppercase">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><div class="space-y-1"><h3 class="text-sm font-bold text-amber-200 font-serif">"${esc(d.title)}"</h3><div class="p-4 rounded-xl bg-white/5 border border-white/5 text-xs text-slate-300 leading-relaxed italic whitespace-pre-line">"${esc(d.text)}"</div></div>${ic}</div>`;
+                pane.innerHTML = `<div class="space-y-4 flex-grow flex flex-col"><div class="overflow-y-auto max-h-[320px] pr-2 space-y-4"><div class="p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center"><div><p class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">${translations[currentLang]?.label_sent_detail||'Tu Detalle'}</p><h4 class="text-[11px] font-semibold text-slate-300">${translations[currentLang]?.label_vision_history||'Historial'}</h4></div><span class="text-[9px] text-slate-400 font-semibold uppercase">${new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'})}</span></div><div class="space-y-1"><h3 class="text-sm font-bold text-amber-200 font-serif">"${esc(d.title)}"</h3><div class="p-4 rounded-xl bg-white/5 border border-white/5 text-xs text-slate-300 leading-relaxed italic whitespace-pre-line">"${esc(d.text)}"</div></div>${ic}</div><div class="border-t border-white/10 pt-3 mt-2"><div id="chat-msgs-${d._id}" class="max-h-[200px] overflow-y-auto mb-2 p-2 rounded-xl bg-black/30 space-y-1 text-xs"></div><div class="flex gap-2 items-center"><input type="text" id="chat-input-${d._id}" placeholder="Escribe un mensaje..." class="flex-1 px-3 py-2 rounded-xl glass-input text-xs" ${d.status === 'Pendiente' ? 'disabled' : ''}><label class="cursor-pointer text-amber-400 hover:text-amber-300 text-lg" title="Adjuntar archivo">📎<input type="file" id="chat-file-${d._id}" class="hidden" accept=".mp3,.wav,.ogg,.webm,.m4a,.pdf,.jpg,.png,.zip" ${d.status === 'Pendiente' ? 'disabled' : ''}></label><button onclick="sendChatMessage('${d._id}')" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-[10px] px-4 py-2 rounded-xl transition uppercase tracking-wider" ${d.status === 'Pendiente' ? 'disabled' : ''}>✦</button></div></div></div>`;
                 selectedRating = 5;
+                renderChat(d._id, 'chat-msgs-' + d._id);
             } catch(e) { showModal('Error', 'No se pudo cargar el sueño.'); }
         }
 
@@ -1018,6 +1022,58 @@
                 selectUserDream(dreamId);
             } catch(err) { showModal('Error', err.message); }
             finally { setLoading('btn-send-review', false); }
+        }
+
+        function renderChat(dreamId, containerId) {
+            const container = document.getElementById(containerId);
+            activeChatDreamId = dreamId;
+            if (chatPollTimer) clearInterval(chatPollTimer);
+            const poll = () => loadChatMessages(dreamId, container);
+            poll();
+            chatPollTimer = setInterval(poll, 5000);
+        }
+
+        async function loadChatMessages(dreamId, container) {
+            try {
+                const data = await api.get('/messages/' + dreamId);
+                const oldHeight = container.scrollHeight;
+                const hasAdminMsg = data.messages.some(m => m.senderRole === 'admin');
+                let html = '';
+                data.messages.forEach(m => {
+                    const isMine = m.senderRole === (currentUser.role === 'admin' ? 'admin' : 'user');
+                    const time = new Date(m.createdAt).toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'});
+                    let body = esc(m.content);
+                    if (m.type === 'audio') body = `<audio controls class="w-48 h-8"><source src="${m.fileUrl}" type="audio/mpeg"></audio>`;
+                    else if (m.type === 'file') body = `<a href="${m.fileUrl}" download="${esc(m.fileName)}" class="text-amber-300 underline text-[10px]">📎 ${esc(m.fileName)}</a>`;
+                    html += `<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-2"><div class="max-w-[80%] p-2.5 rounded-xl text-[11px] leading-relaxed ${isMine ? 'bg-amber-500/20 text-amber-200 rounded-br-none' : 'bg-white/10 text-slate-200 rounded-bl-none'}"><div class="break-words">${body}</div><div class="text-[8px] text-slate-400 mt-1 text-right">${time}</div></div></div>`;
+                });
+                container.innerHTML = html;
+                container.scrollTop = container.scrollHeight;
+                const input = document.getElementById('chat-input-' + dreamId);
+                const btn = input?.nextElementSibling?.nextElementSibling;
+                if (input && currentUser.role !== 'admin') {
+                    if (hasAdminMsg) { input.disabled = false; if (btn) btn.disabled = false; }
+                    else { input.disabled = true; if (btn) btn.disabled = true; }
+                }
+            } catch(e) { /* ignore */ }
+        }
+
+        async function sendChatMessage(dreamId) {
+            const input = document.getElementById('chat-input-' + dreamId);
+            const fileInput = document.getElementById('chat-file-' + dreamId);
+            const text = input?.value.trim();
+            const file = fileInput?.files?.[0];
+            if (!text && !file) return;
+            const formData = new FormData();
+            if (text) formData.append('content', text);
+            if (file) formData.append('file', file);
+            try {
+                await fetch('/api/messages/' + dreamId, { method: 'POST', headers: { 'Authorization': 'Bearer ' + currentToken }, body: formData });
+                input.value = '';
+                if (fileInput) fileInput.value = '';
+                const container = document.getElementById('chat-msgs-' + dreamId);
+                if (container) loadChatMessages(dreamId, container);
+            } catch(e) { showModal('Error', 'Error al enviar mensaje'); }
         }
 
         async function renderPublicReviews(more) {
@@ -1127,6 +1183,7 @@
         }
 
         async function selectDreamForReading(id) {
+            if (chatPollTimer) clearInterval(chatPollTimer);
             selectedDreamId = id;
             try {
                 const d = (await api.get('/admin/dreams/' + id)).dream;
@@ -1137,17 +1194,27 @@
                 document.getElementById('reader-dream-date').textContent = new Date(d.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short'});
                 document.getElementById('reader-dream-title').textContent = `"${d.title}"`;
                 document.getElementById('reader-dream-text').textContent = d.text;
-                const editor = document.getElementById('reader-reply-editor-container');
-                const view = document.getElementById('reader-reply-view-container');
-                if (d.status === 'Pendiente') {
-                    document.getElementById('admin-reply-textarea').value = '';
-                    editor.classList.remove('hidden'); view.classList.add('hidden');
-                } else {
-                    editor.classList.add('hidden'); view.classList.remove('hidden');
-                    document.getElementById('reader-reply-saved-text').textContent = d.interpretation;
-                }
                 renderAdminPanel();
+                renderChat(id, 'chat-msgs-admin');
             } catch(e) { showModal('Error', 'No se pudo cargar el sueño.'); }
+        }
+
+        async function sendAdminChatMessage() {
+            if (!selectedDreamId) return;
+            const input = document.getElementById('chat-input-admin');
+            const fileInput = document.getElementById('chat-file-admin');
+            const text = input?.value.trim();
+            const file = fileInput?.files?.[0];
+            if (!text && !file) return;
+            const formData = new FormData();
+            if (text) formData.append('content', text);
+            if (file) formData.append('file', file);
+            try {
+                await fetch('/api/messages/' + selectedDreamId, { method: 'POST', headers: { 'Authorization': 'Bearer ' + currentToken }, body: formData });
+                input.value = '';
+                if (fileInput) fileInput.value = '';
+                loadChatMessages(selectedDreamId, document.getElementById('chat-msgs-admin'));
+            } catch(e) { showModal('Error', 'Error al enviar mensaje'); }
         }
 
         async function sendInterpretationFromAdmin() {
