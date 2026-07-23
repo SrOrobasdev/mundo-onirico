@@ -1,24 +1,22 @@
-const CACHE_NAME = 'mundo-onirico-v4';
-const CDN_URLS = [
-  'https://cdn.tailwindcss.com/3.4.17',
-  'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap'
-];
+const CACHE_NAME = 'mundo-onirico-assets-v1';
+const CDN_PATTERNS = ['cdn.tailwindcss.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', () => self.skipWaiting());
 
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(names =>
-      Promise.all(names.map(name => caches.delete(name)))
+      Promise.all(names.map(n => {
+        if (n !== CACHE_NAME) return caches.delete(n);
+      }))
     ).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
-  const isCDN = CDN_URLS.some(url => event.request.url.startsWith(url));
-  if (isCDN) {
-    event.respondWith(networkFirst(event.request));
-  } else if (event.request.mode === 'navigate') {
+  const url = new URL(event.request.url);
+  const isCDN = CDN_PATTERNS.some(p => url.hostname.includes(p));
+  if (isCDN && event.request.method === 'GET') {
     event.respondWith(networkFirst(event.request));
   }
 });
