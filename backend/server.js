@@ -60,6 +60,9 @@ if (process.env.SENTRY_DSN) {
         cachedHtml = fs.readFileSync(path.join(frontendPath, 'index.html'), 'utf8')
           .replace('</head>', `<script src="https://browser.sentry-cdn.com/7.120.3/bundle.min.js" crossorigin="anonymous"></script>\n<script>Sentry.init({ dsn: '${process.env.SENTRY_DSN}' });</script>\n</head>`);
       }
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
       res.type('html').send(cachedHtml);
     } else {
       next();
@@ -67,7 +70,13 @@ if (process.env.SENTRY_DSN) {
   });
 }
 
-app.use(express.static(frontendPath));
+app.use(express.static(frontendPath, {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html') || filePath.endsWith('sw.js')) {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+  }
+}));
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
