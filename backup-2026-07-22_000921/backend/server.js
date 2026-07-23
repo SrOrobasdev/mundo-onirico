@@ -22,7 +22,6 @@ const adminRoutes = require('./routes/admin');
 const symbolRoutes = require('./routes/symbols');
 const reviewRoutes = require('./routes/reviews');
 const adminReviewRoutes = require('./routes/admin-reviews');
-const messageRoutes = require('./routes/messages');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -144,7 +143,6 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/symbols', symbolRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin/reviews', adminReviewRoutes);
-app.use('/api/messages', messageRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
