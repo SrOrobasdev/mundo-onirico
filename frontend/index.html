@@ -111,7 +111,7 @@
 
     <canvas id="starfield" class="fixed inset-0 pointer-events-none select-none" style="z-index:-1;-webkit-user-drag:none"></canvas>
 
-    <header id="user-header" class="glass-card border-b border-white/5 py-4 sticky top-0 z-50">
+    <header id="user-header" class="glass-card border-b border-white/5 py-4 z-50 md:sticky md:top-0" style="-webkit-backdrop-filter:none;backdrop-filter:none">
         <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
             <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('analizar')">
                 <span class="text-3xl text-amber-300 glow-pulse">🔮</span>
@@ -130,7 +130,7 @@
         </div>
     </header>
 
-    <header id="admin-header" class="hidden bg-slate-950 border-b border-amber-500/20 py-4 sticky top-0 z-50">
+    <header id="admin-header" class="hidden bg-slate-950 border-b border-amber-500/20 py-4 z-50 md:sticky md:top-0">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <span class="text-3xl text-amber-400">🛡️</span>
@@ -1312,10 +1312,12 @@
         function showPrivacy() { openModal('Aviso de Privacidad', `<div class="space-y-3 text-xs text-slate-200"><p><b>1. Datos que recopilamos</b><br>Recopilamos: nombre, correo electrónico, contraseña (cifrada), y los textos de los sueños que envías voluntariamente.</p><p><b>2. Uso de los datos</b><br>Usamos tus datos únicamente para: gestionar tu cuenta, proveer interpretaciones de sueños, y mejorar el servicio.</p><p><b>3. Almacenamiento</b><br>Tus datos se almacenan de forma segura en MongoDB Atlas (AWS São Paulo). Tomamos medidas de seguridad estándar.</p><p><b>4. No compartimos tus datos</b><br>No vendemos, alquilamos ni compartimos tu información personal con terceros. Jamás.</p><p><b>5. Tus derechos</b><br>Puedes solicitar la eliminación de tus datos y cuenta en cualquier momento escribiendo a <span class="text-amber-400">admin@mundoonirico.com</span>.</p><p><b>6. Cookies</b><br>Usamos localStorage para mantener tu sesión iniciada. No usamos cookies de rastreo ni publicitarias.</p><p><b>7. Cambios</b><br>Si este aviso cambia, te notificaremos en la página.</p></div>`); }
 
         window.onload = () => {
-            switchTab('analizar');
-            changeLanguage(currentLang);
-            updateUserInterface();
-            if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).then(() => navigator.serviceWorker.register('/sw.js'));
+            try {
+                switchTab('analizar');
+                changeLanguage(currentLang);
+                updateUserInterface();
+                if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+            } catch(e) { console.error('Init error:', e); }
         };
     </script>
 </body>
