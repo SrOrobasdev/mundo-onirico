@@ -24,7 +24,6 @@
             background: linear-gradient(135deg, var(--cosmic-dark) 0%, #0d071a 50%, var(--cosmic-purple) 100%);
             color: #f1f5f9;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
         .mystic-title {
@@ -121,11 +120,11 @@
                     <p class="text-[9px] text-purple-300 uppercase tracking-widest font-medium" data-i18n="header_subtitle">El Espejo del Subconsciente</p>
                 </div>
             </div>
-            <nav class="flex items-center gap-3 mt-4 md:mt-0 overflow-x-auto max-w-full py-1">
-                <button onclick="switchTab('analizar')" id="btn-analizar" class="nav-btn active px-3 py-1.5 text-xs md:text-sm font-semibold tracking-wider" data-i18n="nav_home">✦ Home</button>
-                <button onclick="switchTab('proceso')" id="btn-proceso" class="nav-btn px-3 py-1.5 text-xs md:text-sm font-semibold tracking-wider" data-i18n="nav_process">✨ Proceso</button>
-                <button onclick="switchTab('resenas')" id="btn-resenas" class="nav-btn px-3 py-1.5 text-xs md:text-sm font-semibold tracking-wider" data-i18n="nav_reviews">⭐ Reseñas</button>
-                <button onclick="switchTab('quiensoy')" id="btn-quiensoy" class="nav-btn px-3 py-1.5 text-xs md:text-sm font-semibold tracking-wider" data-i18n="nav_who">🕯️ ¿Quién Soy?</button>
+            <nav class="flex items-center gap-3 mt-4 md:mt-0 flex-wrap justify-center py-1" style="touch-action:manipulation">
+                <button onclick="switchTab('analizar')" id="btn-analizar" class="nav-btn active px-3 py-1.5 text-xs md:text-sm font-semibold tracking-wider" data-i18n="nav_home" style="touch-action:manipulation">✦ Home</button>
+                <button onclick="switchTab('proceso')" id="btn-proceso" class="nav-btn px-3 py-1.5 text-xs md:text-sm font-semibold tracking-wider" data-i18n="nav_process" style="touch-action:manipulation">✨ Proceso</button>
+                <button onclick="switchTab('resenas')" id="btn-resenas" class="nav-btn px-3 py-1.5 text-xs md:text-sm font-semibold tracking-wider" data-i18n="nav_reviews" style="touch-action:manipulation">⭐ Reseñas</button>
+                <button onclick="switchTab('quiensoy')" id="btn-quiensoy" class="nav-btn px-3 py-1.5 text-xs md:text-sm font-semibold tracking-wider" data-i18n="nav_who" style="touch-action:manipulation">🕯️ ¿Quién Soy?</button>
             </nav>
             <div id="user-nav-status" class="mt-3 md:mt-0 flex items-center gap-3"></div>
         </div>
