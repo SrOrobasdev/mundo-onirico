@@ -146,20 +146,6 @@
         </div>
     </header>
 
-    <div id="lang-selector-container" class="max-w-md mx-auto p-4 rounded-2xl border border-emerald-500/20 bg-emerald-950/15 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-3" style="margin-top:1rem;margin-bottom:0">
-        <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 emerald-pulse"></span>
-            <span class="text-xs font-semibold text-emerald-300 uppercase tracking-widest font-sans" data-i18n="lang_select_title">Idioma / Language</span>
-        </div>
-        <div class="flex items-center gap-1.5 flex-wrap justify-center">
-            <button onclick="changeLanguage('es')" id="lang-btn-es" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇪🇸 ES</button>
-            <button onclick="changeLanguage('en')" id="lang-btn-en" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇺🇸 EN</button>
-            <button onclick="changeLanguage('it')" id="lang-btn-it" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇮🇹 IT</button>
-            <button onclick="changeLanguage('pt')" id="lang-btn-pt" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇵🇹 PT</button>
-            <button onclick="changeLanguage('fr')" id="lang-btn-fr" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇫🇷 FR</button>
-        </div>
-    </div>
-
     <main id="user-main-content" class="container mx-auto px-4 py-8 flex-grow max-w-5xl">
 
         <section id="sec-analizar" class="tab-content block space-y-8">
@@ -258,6 +244,20 @@
 
             <div class="max-w-md mx-auto text-center mb-4">
                 <a id="terms-link" href="/terms/es.pdf" target="_blank" class="inline-block text-xs text-amber-300 font-bold tracking-widest uppercase glow-pulse hover:text-amber-200 transition-colors" data-i18n="terms_link">✦ Términos y Condiciones — Contrato Legal ✦</a>
+            </div>
+
+            <div id="lang-selector-container" class="max-w-md mx-auto p-4 rounded-2xl border border-emerald-500/20 bg-emerald-950/15 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 emerald-pulse"></span>
+                    <span class="text-xs font-semibold text-emerald-300 uppercase tracking-widest font-sans" data-i18n="lang_select_title">Idioma / Language</span>
+                </div>
+                <div class="flex items-center gap-1.5 flex-wrap justify-center">
+                    <button onclick="changeLanguage('es')" id="lang-btn-es" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇪🇸 ES</button>
+                    <button onclick="changeLanguage('en')" id="lang-btn-en" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇺🇸 EN</button>
+                    <button onclick="changeLanguage('it')" id="lang-btn-it" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇮🇹 IT</button>
+                    <button onclick="changeLanguage('pt')" id="lang-btn-pt" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇵🇹 PT</button>
+                    <button onclick="changeLanguage('fr')" id="lang-btn-fr" class="lang-selector-btn px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all duration-300">🇫🇷 FR</button>
+                </div>
             </div>
 
             <div id="dream-form-container" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-start bg-slate-950/60 p-4 rounded-2xl border border-white/5 h-[600px]">
@@ -847,7 +847,7 @@
             document.getElementById('user-welcome-username').textContent = currentUser.name;
             const vb = document.getElementById('verify-banner');
             if (currentUser.emailVerified) { vb.classList.add('hidden'); } else { vb.classList.remove('hidden'); }
-            ql.classList.add('hidden');
+            ql.classList.add('hidden'); langSel.classList.add('hidden');
             selectedUserDreamId = null; showNewDreamForm(); renderUserMailbox();
         }
 
