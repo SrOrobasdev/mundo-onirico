@@ -241,6 +241,7 @@
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_email">Correo Electrónico</label><input type="email" id="reg-email" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_email" placeholder="tu@correo.com"></div>
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_password">Contraseña</label><input type="password" id="reg-password" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_password" placeholder="Crear una contraseña (mín. 6 caracteres)"></div>
                     <button type="submit" id="btn-register-submit" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition-all uppercase" data-i18n="btn_register">Crear mi Cuenta Cósmica ✦</button>
+                </form>
                 <form id="form-forgot" onsubmit="handleForgotSubmit(event)" class="hidden space-y-4 text-left">
                     <div id="forgot-step-1">
                         <p class="text-[11px] text-slate-400" data-i18n="forgot_desc">Ingresa tu correo y te enviaremos un código para restablecer tu contraseña.</p>
@@ -871,6 +872,8 @@
                 document.getElementById(`form-${f}`).classList.add('hidden');
             });
             document.getElementById('form-forgot').classList.remove('hidden');
+            const loginEmail = document.getElementById('login-email').value.trim();
+            if (loginEmail) document.getElementById('forgot-email').value = loginEmail;
             document.getElementById('forgot-step-1').classList.remove('hidden');
             document.getElementById('forgot-step-2').classList.add('hidden');
             document.getElementById('auth-error').classList.add('hidden');
