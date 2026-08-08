@@ -56,6 +56,14 @@ const userSchema = new mongoose.Schema({
   verificationCodeExpiresAt: {
     type: Date,
     default: null
+  },
+  resetCode: {
+    type: String,
+    default: null
+  },
+  resetCodeExpiresAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true
@@ -90,6 +98,18 @@ userSchema.methods.generateVerificationCode = function() {
 userSchema.methods.compareVerificationCode = function(code) {
   const hash = crypto.createHash('sha256').update(code).digest('hex');
   return hash === this.verificationCode;
+};
+
+userSchema.methods.generateResetCode = function() {
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  this.resetCode = crypto.createHash('sha256').update(code).digest('hex');
+  this.resetCodeExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
+  return code;
+};
+
+userSchema.methods.compareResetCode = function(code) {
+  const hash = crypto.createHash('sha256').update(code).digest('hex');
+  return hash === this.resetCode;
 };
 
 module.exports = mongoose.model('User', userSchema);

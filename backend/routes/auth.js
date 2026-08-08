@@ -5,7 +5,7 @@ const { body, validationResult } = require('express-validator');
 const passport = require('passport');
 const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
-const { sendWelcomeEmail, sendVerificationCode } = require('../services/email');
+const { sendWelcomeEmail, sendVerificationCode, sendPasswordResetCode } = require('../services/email');
 const { AppError, asyncHandler } = require('../middleware/errorHandler');
 const { validateObjectId } = require('../middleware/validateObjectId');
 
@@ -194,6 +194,57 @@ router.post('/change-password', authenticate, [
   await req.user.save();
 
   res.json({ message: 'Contraseña actualizada con éxito.' });
+}));
+
+router.post('/forgot-password', [
+  body('email').isEmail().withMessage('Email inválido').normalizeEmail()
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new AppError(errors.array()[0].msg, 400);
+  }
+
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (user) {
+    const code = user.generateResetCode();
+    await user.save();
+    sendPasswordResetCode(user, code);
+  }
+
+  res.json({ message: 'Si el correo está registrado, recibirás un código para restablecer tu contraseña.' });
+}));
+
+router.post('/reset-password', [
+  body('email').isEmail().withMessage('Email inválido').normalizeEmail(),
+  body('code').trim().notEmpty().withMessage('Código requerido'),
+  body('newPassword').isLength({ min: 6 }).withMessage('La nueva contraseña debe tener al menos 6 caracteres')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new AppError(errors.array()[0].msg, 400);
+  }
+
+  const { email, code, newPassword } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user || !user.resetCode || !user.resetCodeExpiresAt || user.resetCodeExpiresAt < new Date()) {
+    throw new AppError('El código es inválido o expiró. Solicita uno nuevo.', 400);
+  }
+
+  if (!user.compareResetCode(code)) {
+    throw new AppError('Código incorrecto.', 400);
+  }
+
+  user.password = newPassword;
+  user.resetCode = null;
+  user.resetCodeExpiresAt = null;
+  user.failedLoginAttempts = 0;
+  user.lockUntil = null;
+  await user.save();
+
+  res.json({ message: 'Contraseña restablecida con éxito. Ya puedes iniciar sesión.' });
 }));
 
 module.exports = router;

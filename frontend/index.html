@@ -229,6 +229,7 @@
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_email">Correo Electrónico</label><input type="email" id="login-email" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_email" placeholder="tu@correo.com"></div>
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_password">Contraseña</label><input type="password" id="login-password" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_password" placeholder="••••••••"></div>
                     <button type="submit" id="btn-login-submit" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition-all uppercase" data-i18n="btn_login">Ingresar al Éter ✦</button>
+                    <button type="button" onclick="showForgotPasswordForm()" class="w-full text-center text-[11px] text-purple-300 hover:text-amber-300 transition-colors" data-i18n="forgot_link">¿Olvidaste tu contraseña?</button>
                     <div class="relative my-3"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/10"></div></div><div class="relative flex justify-center"><span class="bg-[#130a21] px-3 text-[10px] text-slate-400">O continúa con</span></div></div>
                     <div class="flex items-center gap-2 justify-center w-full bg-white/5 border border-white/10 text-slate-400 font-bold text-xs tracking-wider py-3 rounded-xl cursor-not-allowed opacity-60">
                         <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
@@ -240,6 +241,20 @@
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_email">Correo Electrónico</label><input type="email" id="reg-email" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_email" placeholder="tu@correo.com"></div>
                     <div><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_password">Contraseña</label><input type="password" id="reg-password" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_password" placeholder="Crear una contraseña (mín. 6 caracteres)"></div>
                     <button type="submit" id="btn-register-submit" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition-all uppercase" data-i18n="btn_register">Crear mi Cuenta Cósmica ✦</button>
+                <form id="form-forgot" onsubmit="handleForgotSubmit(event)" class="hidden space-y-4 text-left">
+                    <div id="forgot-step-1">
+                        <p class="text-[11px] text-slate-400" data-i18n="forgot_desc">Ingresa tu correo y te enviaremos un código para restablecer tu contraseña.</p>
+                        <div class="mt-3"><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="label_email">Correo Electrónico</label><input type="email" id="forgot-email" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_email" placeholder="tu@correo.com"></div>
+                        <button type="submit" id="btn-forgot-send" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition-all uppercase" data-i18n="forgot_btn_send">Enviar Código ✦</button>
+                    </div>
+                    <div id="forgot-step-2" class="hidden">
+                        <p class="text-[11px] text-slate-400" data-i18n="forgot_step2_hint">Revisa tu correo e ingresa el código junto con tu nueva contraseña.</p>
+                        <div class="mt-3"><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="forgot_code_label">Código de Seguridad</label><input type="text" id="forgot-code" inputmode="numeric" maxlength="6" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs tracking-widest text-center" placeholder="••••••"></div>
+                        <div class="mt-3"><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="forgot_new_label">Nueva Contraseña</label><input type="password" id="forgot-newpass" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_newpass" placeholder="Nueva contraseña (mín. 6 caracteres)"></div>
+                        <div class="mt-3"><label class="block text-[10px] uppercase tracking-wider font-semibold text-purple-300 mb-1" data-i18n="forgot_confirm_label">Confirmar Contraseña</label><input type="password" id="forgot-confirm" required class="w-full px-4 py-2.5 rounded-xl glass-input text-xs" data-i18n-placeholder="placeholder_newpass" placeholder="Repite la nueva contraseña"></div>
+                        <button type="submit" id="btn-forgot-reset" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs tracking-wider py-3 rounded-xl transition-all uppercase" data-i18n="forgot_btn_reset">Restablecer Contraseña ✦</button>
+                    </div>
+                    <button type="button" onclick="backToAuthForm()" class="w-full text-center text-[11px] text-purple-300 hover:text-amber-300 transition-colors" data-i18n="forgot_back">← Volver al inicio de sesión</button>
                 </form>
             </div>
 
@@ -493,6 +508,7 @@
                 terms_link:"✦ Términos y Condiciones — Contrato Legal ✦",
                 verify_title:"Verifica tu Cuenta",verify_desc:"Ingresa el código de 6 dígitos que enviamos a tu correo para seguir enviando sueños.",verify_continue:"Continuar",verify_btn:"Verificar Cuenta",verify_notice_title:"Aviso",verify_notice:"Solo se podrá enviar un sueño si no verificas la cuenta.",verify_btn_go:"Verificar Cuenta",verify_resend:"Reenviar Código",load_more:"+ Cargar más",
                 chg_btn_short:"Contraseña",chg_title:"Cambiar Contraseña",chg_current:"Contraseña actual",chg_new:"Nueva contraseña",chg_confirm:"Confirmar nueva contraseña",chg_btn:"Actualizar Contraseña",
+                forgot_link:"¿Olvidaste tu contraseña?",forgot_desc:"Ingresa tu correo y te enviaremos un código para restablecer tu contraseña.",forgot_btn_send:"Enviar Código ✦",forgot_step2_hint:"Revisa tu correo e ingresa el código junto con tu nueva contraseña.",forgot_code_label:"Código de Seguridad",forgot_new_label:"Nueva Contraseña",forgot_confirm_label:"Confirmar Contraseña",forgot_btn_reset:"Restablecer Contraseña ✦",forgot_back:"← Volver al inicio de sesión",
                 exit_btn:"Salir"
             },
             en: {
@@ -532,6 +548,7 @@
                 terms_link:"✦ Terms & Conditions — Legal Contract ✦",
                 verify_title:"Verify your Account",verify_desc:"Enter the 6-digit code sent to your email to keep sending dreams.",verify_continue:"Continue",verify_btn:"Verify Account",verify_notice_title:"Notice",verify_notice:"Only one dream can be sent if you do not verify your account.",verify_btn_go:"Verify Account",verify_resend:"Resend Code",load_more:"+ Load more",
                 chg_btn_short:"Password",chg_title:"Change Password",chg_current:"Current password",chg_new:"New password",chg_confirm:"Confirm new password",chg_btn:"Update Password",
+                forgot_link:"Forgot your password?",forgot_desc:"Enter your email and we will send you a code to reset your password.",forgot_btn_send:"Send Code ✦",forgot_step2_hint:"Check your email and enter the code along with your new password.",forgot_code_label:"Security Code",forgot_new_label:"New Password",forgot_confirm_label:"Confirm Password",forgot_btn_reset:"Reset Password ✦",forgot_back:"← Back to login",
                 exit_btn:"Exit"
             },
             it: {
@@ -568,6 +585,7 @@
                 terms_link:"✦ Termini e Condizioni — Contratto Legale ✦",
                 verify_title:"Verifica il tuo Account",verify_desc:"Inserisci il codice a 6 cifre inviato alla tua email.",verify_continue:"Continua",verify_btn:"Verifica Account",verify_notice_title:"Avviso",verify_notice:"Solo un sogno può essere inviato senza verifica.",verify_btn_go:"Verifica Account",verify_resend:"Invia di Nuovo",load_more:"+ Carica altri",
                 chg_btn_short:"Password",chg_title:"Cambia Password",chg_current:"Password attuale",chg_new:"Nuova password",chg_confirm:"Conferma nuova password",chg_btn:"Aggiorna Password",
+                forgot_link:"Hai dimenticato la password?",forgot_desc:"Inserisci la tua email e ti invieremo un codice per reimpostare la password.",forgot_btn_send:"Invia Codice ✦",forgot_step2_hint:"Controlla la tua email e inserisci il codice con la nuova password.",forgot_code_label:"Codice di Sicurezza",forgot_new_label:"Nuova Password",forgot_confirm_label:"Conferma Password",forgot_btn_reset:"Reimposta Password ✦",forgot_back:"← Torna al login",
                 exit_btn:"Esci"
             },
             pt: {
@@ -604,6 +622,7 @@
                 terms_link:"✦ Termos e Condições — Contrato Legal ✦",
                 verify_title:"Verifique sua Conta",verify_desc:"Insira o código de 6 dígitos enviado ao seu email.",verify_continue:"Continuar",verify_btn:"Verificar Conta",verify_notice_title:"Aviso",verify_notice:"Apenas um sonho pode ser enviado sem verificação.",verify_btn_go:"Verificar Conta",verify_resend:"Reenviar Código",load_more:"+ Carregar mais",
                 chg_btn_short:"Senha",chg_title:"Alterar Senha",chg_current:"Senha atual",chg_new:"Nova senha",chg_confirm:"Confirmar nova senha",chg_btn:"Atualizar Senha",
+                forgot_link:"Esqueceu sua senha?",forgot_desc:"Digite seu email e enviaremos um código para redefinir sua senha.",forgot_btn_send:"Enviar Código ✦",forgot_step2_hint:"Verifique seu email e insira o código com a nova senha.",forgot_code_label:"Código de Segurança",forgot_new_label:"Nova Senha",forgot_confirm_label:"Confirmar Senha",forgot_btn_reset:"Redefinir Senha ✦",forgot_back:"← Voltar ao login",
                 exit_btn:"Sair"
             },
             fr: {
@@ -640,6 +659,7 @@
                 terms_link:"✦ Termes et Conditions — Contrat Légal ✦",
                 verify_title:"Vérifiez votre Compte",verify_desc:"Entrez le code à 6 chiffres envoyé à votre email.",verify_continue:"Continuer",verify_btn:"Vérifier le Compte",verify_notice_title:"Avis",verify_notice:"Un seul rêve peut être envoyé sans vérification.",verify_btn_go:"Vérifier le Compte",verify_resend:"Renvoyer le Code",load_more:"+ Charger plus",
                 chg_btn_short:"Mot de passe",chg_title:"Changer le Mot de Passe",chg_current:"Mot de passe actuel",chg_new:"Nouveau mot de passe",chg_confirm:"Confirmer le nouveau mot de passe",chg_btn:"Mettre à Jour",
+                forgot_link:"Mot de passe oublié?",forgot_desc:"Entrez votre email et nous vous enverrons un code pour réinitialiser votre mot de passe.",forgot_btn_send:"Envoyer le Code ✦",forgot_step2_hint:"Vérifiez votre email et entrez le code avec votre nouveau mot de passe.",forgot_code_label:"Code de Sécurité",forgot_new_label:"Nouveau Mot de Passe",forgot_confirm_label:"Confirmer le Mot de Passe",forgot_btn_reset:"Réinitialiser ✦",forgot_back:"← Retour à la connexion",
                 exit_btn:"Sortir"
             }
         };
@@ -843,6 +863,61 @@
                 updateUserInterface();
             } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
             finally { setLoading(btnId, false); }
+        }
+
+        function showForgotPasswordForm() {
+            ['login','register'].forEach(f => {
+                document.getElementById(`tab-${f}`).classList.add('hidden');
+                document.getElementById(`form-${f}`).classList.add('hidden');
+            });
+            document.getElementById('form-forgot').classList.remove('hidden');
+            document.getElementById('forgot-step-1').classList.remove('hidden');
+            document.getElementById('forgot-step-2').classList.add('hidden');
+            document.getElementById('auth-error').classList.add('hidden');
+        }
+
+        function backToAuthForm() {
+            ['login','register'].forEach(f => {
+                document.getElementById(`tab-${f}`).classList.remove('hidden');
+                document.getElementById(`form-${f}`).classList.toggle('hidden', f !== 'login');
+            });
+            document.getElementById('form-forgot').classList.add('hidden');
+            document.getElementById('auth-error').classList.add('hidden');
+        }
+
+        async function handleForgotSubmit(event) {
+            event.preventDefault();
+            const errEl = document.getElementById('auth-error');
+            errEl.classList.add('hidden');
+            const step2 = document.getElementById('forgot-step-2');
+            const email = document.getElementById('forgot-email').value.trim();
+
+            if (!step2.classList.contains('hidden')) {
+                const code = document.getElementById('forgot-code').value.trim();
+                const newPassword = document.getElementById('forgot-newpass').value;
+                const confirm = document.getElementById('forgot-confirm').value;
+                if (!/^\d{6}$/.test(code)) { errEl.textContent = 'Ingresa el código de 6 dígitos.'; errEl.classList.remove('hidden'); return; }
+                if (newPassword.length < 6) { errEl.textContent = 'La nueva contraseña debe tener al menos 6 caracteres.'; errEl.classList.remove('hidden'); return; }
+                if (newPassword !== confirm) { errEl.textContent = 'Las contraseñas no coinciden.'; errEl.classList.remove('hidden'); return; }
+                setLoading('btn-forgot-reset', true);
+                try {
+                    const data = await api.post('/auth/reset-password', { email, code, newPassword });
+                    showModal('Contraseña Restablecida', data.message);
+                    backToAuthForm();
+                } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+                finally { setLoading('btn-forgot-reset', false); }
+                return;
+            }
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Ingresa un correo electrónico válido.'; errEl.classList.remove('hidden'); return; }
+            setLoading('btn-forgot-send', true);
+            try {
+                const data = await api.post('/auth/forgot-password', { email });
+                step2.classList.remove('hidden');
+                document.getElementById('forgot-step-1').classList.add('hidden');
+                showModal('Código Enviado', data.message);
+            } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+            finally { setLoading('btn-forgot-send', false); }
         }
 
         function loginWithGoogle() { showModalHTML('Próximamente', '<div class="text-center space-y-3"><p class="text-slate-300">El inicio de sesión con Google estará disponible pronto.</p><p class="text-[10px] text-slate-400">Por ahora, regístrate con tu correo electrónico.</p></div>'); }
