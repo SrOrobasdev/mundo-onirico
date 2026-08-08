@@ -170,4 +170,30 @@ router.put('/profile', authenticate, [
   res.json({ user: req.user.toJSON() });
 }));
 
+router.post('/change-password', authenticate, [
+  body('currentPassword').notEmpty().withMessage('La contraseña actual es requerida'),
+  body('newPassword').isLength({ min: 6 }).withMessage('La nueva contraseña debe tener al menos 6 caracteres')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new AppError(errors.array()[0].msg, 400);
+  }
+
+  const { currentPassword, newPassword } = req.body;
+
+  if (!req.user.password) {
+    throw new AppError('Tu cuenta se creó con Google. No tiene contraseña para cambiar.', 400);
+  }
+
+  const isMatch = await req.user.comparePassword(currentPassword);
+  if (!isMatch) {
+    throw new AppError('La contraseña actual es incorrecta.', 401);
+  }
+
+  req.user.password = newPassword;
+  await req.user.save();
+
+  res.json({ message: 'Contraseña actualizada con éxito.' });
+}));
+
 module.exports = router;
