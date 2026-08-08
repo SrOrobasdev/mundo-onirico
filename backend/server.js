@@ -26,6 +26,7 @@ const messageRoutes = require('./routes/messages');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
+app.set('trust proxy', 1);
 
 const path = require('path');
 

@@ -1,24 +1,38 @@
-const nodemailer = require('nodemailer');
+const BREVO_URL = 'https://api.brevo.com/v3/smtp/email';
 
 const esc = str => String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT),
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
+async function sendBrevoEmail({ subject, html, to }) {
+  if (!process.env.BREVO_API_KEY || !process.env.EMAIL_FROM) {
+    throw new Error('Faltan BREVO_API_KEY o EMAIL_FROM en el entorno');
   }
-});
+  const res = await fetch(BREVO_URL, {
+    method: 'POST',
+    headers: {
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json',
+      accept: 'application/json'
+    },
+    body: JSON.stringify({
+      sender: {
+        name: process.env.EMAIL_FROM_NAME || 'Mundo Onírico',
+        email: process.env.EMAIL_FROM
+      },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html
+    })
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Brevo API ${res.status}: ${body}`);
+  }
+  return res.json();
+}
 
 const sendWelcomeEmail = async (user) => {
   try {
-    await transporter.sendMail({
-      from: `"Mundo Onírico" <${process.env.EMAIL_USER}>`,
+    await sendBrevoEmail({
       to: user.email,
       subject: '🦉 Bienvenido a Mundo Onírico',
       html: `
@@ -52,8 +66,7 @@ const sendWelcomeEmail = async (user) => {
 
 const sendInterpretationNotification = async (user, dream) => {
   try {
-    await transporter.sendMail({
-      from: `"Mundo Onírico" <${process.env.EMAIL_USER}>`,
+    await sendBrevoEmail({
       to: user.email,
       subject: `🦉 Tu interpretación para "${dream.title}" está lista`,
       html: `
@@ -86,8 +99,7 @@ const sendInterpretationNotification = async (user, dream) => {
 
 const sendVerificationCode = async (user, code) => {
   try {
-    await transporter.sendMail({
-      from: `"Mundo Onírico" <${process.env.EMAIL_USER}>`,
+    await sendBrevoEmail({
       to: user.email,
       subject: '🔐 Código de verificación — Mundo Onírico',
       html: `
@@ -112,4 +124,4 @@ const sendVerificationCode = async (user, code) => {
   }
 };
 
-module.exports = { transporter, sendWelcomeEmail, sendInterpretationNotification, sendVerificationCode };
+module.exports = { sendWelcomeEmail, sendInterpretationNotification, sendVerificationCode };
